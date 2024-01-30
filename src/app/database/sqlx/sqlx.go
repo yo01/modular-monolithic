@@ -10,7 +10,6 @@ import (
 )
 
 func InitPostgreConnection(config *config.Config) *sqlx.DB {
-
 	sqlxConfig := msqlx.SqlxConfig{
 		Host:     config.PgHostname,
 		Username: config.PgUsername,

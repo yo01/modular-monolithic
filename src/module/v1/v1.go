@@ -2,6 +2,7 @@ package v1
 
 import (
 	"modular-monolithic/app"
+	"modular-monolithic/module/v1/role"
 	"modular-monolithic/module/v1/user"
 )
 
@@ -16,4 +17,7 @@ func Inject(appConfig app.AppConfig) {
 
 	// user module
 	user.Inject(appConfig)
+
+	// role module
+	role.Inject(appConfig)
 }

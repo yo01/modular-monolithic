@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"modular-monolithic/module/v1/user/dto"
-	userService "modular-monolithic/module/v1/user/service"
+	"modular-monolithic/module/v1/role/dto"
+	roleService "modular-monolithic/module/v1/role/service"
 	"modular-monolithic/utils"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
@@ -12,17 +12,17 @@ import (
 	"git.motiolabs.com/library/motiolibs/mresponse"
 )
 
-type UserHandler struct {
+type RoleHandler struct {
 	Carrier     *mcarrier.Carrier
-	UserService userService.IUserService
+	RoleService roleService.IRoleService
 }
 
-func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
+func (h *RoleHandler) List(w http.ResponseWriter, r *http.Request) {
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	resp, merr := h.UserService.List()
+	resp, merr := h.RoleService.List()
 	if merr.Error != nil {
 		mresponse.Failed(w, merr)
 		return
@@ -30,10 +30,9 @@ func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	// Return Response
 	mresponse.Success(w, "Success", http.StatusOK, resp)
-	return
 }
 
-func (h *UserHandler) Detail(w http.ResponseWriter, r *http.Request) {
+func (h *RoleHandler) Detail(w http.ResponseWriter, r *http.Request) {
 	// Param
 	ID := utils.GetID(r)
 
@@ -41,7 +40,7 @@ func (h *UserHandler) Detail(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	resp, merr := h.UserService.Detail(ID)
+	resp, merr := h.RoleService.Detail(ID)
 	if merr.Error != nil {
 		mresponse.Failed(w, merr)
 		return
@@ -49,12 +48,11 @@ func (h *UserHandler) Detail(w http.ResponseWriter, r *http.Request) {
 
 	// Return Response
 	mresponse.Success(w, "Success", http.StatusOK, resp)
-	return
 }
 
-func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *RoleHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var (
-		req dto.CreateUserRequest
+		req dto.CreateRoleRequest
 	)
 
 	// Validation
@@ -68,7 +66,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr = h.UserService.Save(req)
+	merr = h.RoleService.Save(req)
 	if merr.Error != nil {
 		mresponse.Failed(w, merr)
 		return
@@ -76,15 +74,14 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	// Return Response
 	mresponse.Success(w, "Success", http.StatusOK, true)
-	return
 }
 
-func (h *UserHandler) Edit(w http.ResponseWriter, r *http.Request) {
+func (h *RoleHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	// Param
 	ID := utils.GetID(r)
 
 	var (
-		req dto.UpdateUserRequest
+		req dto.UpdateRoleRequest
 	)
 
 	// Validation
@@ -98,7 +95,7 @@ func (h *UserHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr = h.UserService.Edit(req, ID)
+	merr = h.RoleService.Edit(req, ID)
 	if merr.Error != nil {
 		mresponse.Failed(w, merr)
 		return
@@ -106,10 +103,9 @@ func (h *UserHandler) Edit(w http.ResponseWriter, r *http.Request) {
 
 	// Return Response
 	mresponse.Success(w, "Success", http.StatusOK, true)
-	return
 }
 
-func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
+func (h *RoleHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Param
 	ID := utils.GetID(r)
 
@@ -117,7 +113,7 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr := h.UserService.Delete(ID)
+	merr := h.RoleService.Delete(ID)
 	if merr.Error != nil {
 		mresponse.Failed(w, merr)
 		return
@@ -125,5 +121,4 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	// Return Response
 	mresponse.Success(w, "Success", http.StatusOK, true)
-	return
 }

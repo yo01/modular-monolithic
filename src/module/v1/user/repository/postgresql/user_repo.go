@@ -107,8 +107,8 @@ func (r userPostgre) Update(data dto.UpdateUserRequest, id string) (merr merror.
 
 func (r userPostgre) Destroy(id string) (merr merror.Error) {
 	row, _ := r.Carrier.Library.Sqlx.Exec(DELETE_USER, id)
-	rowInt, _ := row.RowsAffected()
 
+	rowInt, _ := row.RowsAffected()
 	if rowInt == 0 {
 		return merror.Error{
 			Error: fmt.Errorf("No user found with ID %v to delete", id),

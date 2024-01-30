@@ -71,7 +71,10 @@ func load() Config {
 
 var config = load()
 
-func Get() *Config { return &config }
+func Get() *Config {
+	return &config
+}
+
 func CheckConfig() merror.Error {
 	// Check for required fields
 	requiredFields := []string{

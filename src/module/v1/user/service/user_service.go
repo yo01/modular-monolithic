@@ -2,7 +2,7 @@ package service
 
 import (
 	"modular-monolithic/module/v1/user/dto"
-	user_helper "modular-monolithic/module/v1/user/helper"
+	"modular-monolithic/module/v1/user/helper"
 	userRepository "modular-monolithic/module/v1/user/repository"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
@@ -37,7 +37,7 @@ func (s *UserService) List() (resp []dto.UserResponse, merr merror.Error) {
 		return resp, err
 	}
 
-	return user_helper.PrepareToUsersResponse(fetch), merr
+	return helper.PrepareToUsersResponse(fetch), merr
 }
 
 func (s *UserService) Detail(id string) (resp *dto.UserResponse, merr merror.Error) {
@@ -46,7 +46,7 @@ func (s *UserService) Detail(id string) (resp *dto.UserResponse, merr merror.Err
 		return nil, err
 	}
 
-	return user_helper.PrepareToDetailUserResponse(fetch), err
+	return helper.PrepareToDetailUserResponse(fetch), err
 }
 
 func (s *UserService) Save(req dto.CreateUserRequest) (merr merror.Error) {

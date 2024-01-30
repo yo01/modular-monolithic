@@ -20,8 +20,7 @@ import (
 
 func main() {
 	//Check config
-	err := config.CheckConfig()
-	if err.Error != nil {
+	if err := config.CheckConfig(); err.Error != nil {
 		panic(fmt.Sprintf("%s: %+v", err.Message, err.Error))
 	}
 	cfg := config.Get()
@@ -81,8 +80,7 @@ func main() {
 }
 
 func listenAndServe(apiServer *http.Server) {
-	err := apiServer.ListenAndServe()
-	if err != nil {
+	if err := apiServer.ListenAndServe(); err != nil {
 		logger.Log.Fatal("unable to server", err)
 	}
 }
