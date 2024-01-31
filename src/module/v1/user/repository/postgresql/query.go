@@ -18,7 +18,7 @@ const (
 
 	UPDATE_USER = `
 		UPDATE "user"
-			SET full_name = $2
+			SET ("full_name", "updated_at") = ($2, NOW())
 		WHERE id = $1
 	`
 

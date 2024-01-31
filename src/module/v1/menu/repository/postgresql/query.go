@@ -18,7 +18,7 @@ const (
 
 	UPDATE_MENU = `
 		UPDATE "menu"
-			SET name = $2
+			SET ("name", "updated_at") = ($2, NOW())	
 		WHERE id = $1
 	`
 

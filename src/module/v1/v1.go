@@ -4,6 +4,7 @@ import (
 	"modular-monolithic/app"
 	"modular-monolithic/module/v1/menu"
 	"modular-monolithic/module/v1/permission"
+	"modular-monolithic/module/v1/product"
 	"modular-monolithic/module/v1/role"
 	"modular-monolithic/module/v1/user"
 )
@@ -28,4 +29,7 @@ func Inject(appConfig app.AppConfig) {
 
 	// menu module
 	menu.Inject(appConfig)
+
+	// product module
+	product.Inject(appConfig)
 }
