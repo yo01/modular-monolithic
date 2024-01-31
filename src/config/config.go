@@ -26,6 +26,15 @@ type Config struct {
 	AppPort      int
 	PgPort       int
 	AppDebug     bool
+
+	// ADDITIONAL
+	SMTPServer     string
+	SMTPPort       int
+	SMTPUsername   string
+	SMTPPassword   string
+	SenderEmail    string
+	RecipientEmail string
+	SubjectEmail   string
 }
 
 func load() Config {
@@ -63,6 +72,12 @@ func load() Config {
 		PgDatabase:   viper.GetString("postgresql.database"),
 		PgSslMode:    viper.GetString("postgresql.sslmode"),
 		PgTimezone:   viper.GetString("postgresql.timezone"),
+
+		// ADDITIONAL
+		SMTPServer:   viper.GetString("email.SMTPServer"),
+		SMTPPort:     viper.GetInt("email.SMTPPort"),
+		SMTPUsername: viper.GetString("email.SMTPUsername"),
+		SMTPPassword: viper.GetString("email.SMTPPassword"),
 	}
 
 	return cfg

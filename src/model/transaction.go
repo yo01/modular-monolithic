@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -8,9 +9,10 @@ import (
 
 // Init Table
 type Transaction struct {
-	ID        uuid.UUID  `db:"id"`
-	Name      string     `db:"name"`
-	CreatedAt time.Time  `db:"created_at"`
-	UpdatedAt *time.Time `db:"updated_at"`
-	DeletedAt *time.Time `db:"deleted_at"`
+	ID               uuid.UUID    `db:"id"`
+	Name             string       `db:"name"`
+	IsSuccessPayment sql.NullBool `db:"is_success_payment"`
+	CreatedAt        time.Time    `db:"created_at"`
+	UpdatedAt        *time.Time   `db:"updated_at"`
+	DeletedAt        *time.Time   `db:"deleted_at"`
 }

@@ -25,6 +25,7 @@ type UpdateTransactionRequest struct {
 
 // Response
 type TransactionResponse struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
+	ID               uuid.UUID `json:"id"`
+	Name             string    `json:"name"`
+	IsSuccessPayment bool      `json:"is_success_payment"`
 }

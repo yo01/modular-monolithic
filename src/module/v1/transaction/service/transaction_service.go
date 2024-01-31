@@ -1,6 +1,7 @@
 package service
 
 import (
+	"modular-monolithic/config"
 	"modular-monolithic/module/v1/transaction/dto"
 	"modular-monolithic/module/v1/transaction/helper"
 	transactionRepository "modular-monolithic/module/v1/transaction/repository"
@@ -15,6 +16,9 @@ type ITransactionService interface {
 	Save(req dto.CreateTransactionRequest) (merr merror.Error)
 	Edit(req dto.UpdateTransactionRequest, id string) (merr merror.Error)
 	Delete(id string) (merr merror.Error)
+
+	// ADDITIONAL
+	Payment(id string) (merr merror.Error)
 }
 
 type TransactionService struct {
@@ -68,6 +72,49 @@ func (s *TransactionService) Edit(req dto.UpdateTransactionRequest, id string) (
 func (s *TransactionService) Delete(id string) (merr merror.Error) {
 	if err := s.TransactionRepository.TransactionPostgre.Destroy(id); err.Error != nil {
 		return err
+	}
+
+	return merr
+}
+
+// ADDITIONAL
+
+func (s *TransactionService) Payment(id string) (merr merror.Error) {
+	if err := s.TransactionRepository.TransactionPostgre.Payment(id); err.Error != nil {
+		return err
+	}
+
+	// GET DATA CONFIG
+	config := config.Get()
+
+	// dummy data
+	data := dto.Email{
+		SMTPServer:     config.SMTPServer,
+		SMTPPort:       config.SMTPPort,
+		SMTPUsername:   config.SMTPUsername,
+		SMTPPassword:   config.SMTPPassword,
+		SenderEmail:    "yohaneslie0140@gmail.com",
+		RecipientEmail: "yohaneslie0140@gmail.com",
+		SubjectEmail:   "testing lagi",
+	}
+
+	// Create HTML email body using the invoice template
+	emailBody, err := helper.GenerateInvoiceHTML(data)
+	if err != nil {
+		return merror.Error{
+			Code:  500,
+			Error: err,
+		}
+	}
+
+	data.BodyEmail = emailBody
+
+	// Send email
+	if err = helper.SendEmail(data); err != nil {
+		return merror.Error{
+			Code:  500,
+			Error: err,
+		}
 	}
 
 	return merr

@@ -20,4 +20,7 @@ func InitRoutes(c HandlerConfig) {
 	transactionRoutes.HandleFunc("/", TransactionHandler.Create).Methods(http.MethodPost).Name("transaction.save")
 	transactionRoutes.HandleFunc("/{id}", TransactionHandler.Edit).Methods(http.MethodPut).Name("transaction.edit")
 	transactionRoutes.HandleFunc("/{id}", TransactionHandler.Delete).Methods(http.MethodDelete).Name("transaction.delete")
+
+	// ADDITIONAL
+	transactionRoutes.HandleFunc("/{id}/payment", TransactionHandler.Payment).Methods(http.MethodPut).Name("transaction.payment")
 }

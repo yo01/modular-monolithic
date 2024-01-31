@@ -26,4 +26,11 @@ const (
 		DELETE FROM "transaction"
 		WHERE id = $1;
 	`
+
+	// ADDITIONAL
+	UPDATE_TRANSACTION_PAYMENT = `
+		UPDATE "transaction"
+			SET ("is_success_payment", "updated_at") = ($2, NOW())
+		WHERE id = $1
+	`
 )

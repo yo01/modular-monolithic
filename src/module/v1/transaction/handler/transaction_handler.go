@@ -122,3 +122,23 @@ func (h *TransactionHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Return Response
 	mresponse.Success(w, "Success", http.StatusOK, true)
 }
+
+// ADDITIONAL
+
+func (h *TransactionHandler) Payment(w http.ResponseWriter, r *http.Request) {
+	// Param
+	ID := utils.GetID(r)
+
+	// Init carrier
+	h.Carrier.Context = r.Context()
+
+	// Init Service
+	merr := h.TransactionService.Payment(ID)
+	if merr.Error != nil {
+		mresponse.Failed(w, merr)
+		return
+	}
+
+	// Return Response
+	mresponse.Success(w, "Success", http.StatusOK, true)
+}

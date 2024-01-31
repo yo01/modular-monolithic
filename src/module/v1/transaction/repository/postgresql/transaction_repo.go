@@ -16,6 +16,9 @@ type ITransactionPostgre interface {
 	Insert(data dto.CreateTransactionRequest) (merr merror.Error)
 	Update(data dto.UpdateTransactionRequest, id string) (merr merror.Error)
 	Destroy(id string) (merr merror.Error)
+
+	// ADDITIONAL
+	Payment(id string) (merr merror.Error)
 }
 
 type transactionPostgre struct {
@@ -32,6 +35,7 @@ func (r transactionPostgre) Select() (resp []model.Transaction, merr merror.Erro
 	rows, err := r.Carrier.Library.Sqlx.Queryx(SELECT_TRANSACTION)
 	if err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -51,6 +55,7 @@ func (r transactionPostgre) Select() (resp []model.Transaction, merr merror.Erro
 
 	if err := rows.Err(); err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -62,6 +67,7 @@ func (r transactionPostgre) SelectByID(id string) (resp *model.Transaction, merr
 	row, err := r.Carrier.Library.Sqlx.Queryx(SELECT_TRANSACTION_BY_ID, id)
 	if err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -72,6 +78,7 @@ func (r transactionPostgre) SelectByID(id string) (resp *model.Transaction, merr
 	for row.Next() {
 		if err := row.StructScan(&transaction); err != nil {
 			return nil, merror.Error{
+				Code:  500,
 				Error: err,
 			}
 		}
@@ -113,6 +120,17 @@ func (r transactionPostgre) Destroy(id string) (merr merror.Error) {
 		return merror.Error{
 			Code:  404,
 			Error: fmt.Errorf("No transaction found with ID %v to delete", id),
+		}
+	}
+
+	return merr
+}
+
+func (r transactionPostgre) Payment(id string) (merr merror.Error) {
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_TRANSACTION_PAYMENT, id, true)
+	if row == nil {
+		return merror.Error{
+			Error: row.Err(),
 		}
 	}
 

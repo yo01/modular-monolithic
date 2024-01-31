@@ -3,6 +3,7 @@ package helper
 import (
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/transaction/dto"
+	"modular-monolithic/utils"
 )
 
 func PrepareToTransactionsResponse(data []model.Transaction) (resp []dto.TransactionResponse) {
@@ -16,6 +17,7 @@ func PrepareToTransactionsResponse(data []model.Transaction) (resp []dto.Transac
 		// SET DATA
 		newDetail.ID = detail.ID
 		newDetail.Name = detail.Name
+		newDetail.IsSuccessPayment = utils.NullBoolToBool(detail.IsSuccessPayment)
 
 		resp = append(resp, *newDetail)
 	}
@@ -28,6 +30,7 @@ func PrepareToDetailTransactionResponse(data *model.Transaction) (resp *dto.Tran
 	resp = new(dto.TransactionResponse)
 	resp.ID = data.ID
 	resp.Name = data.Name
+	resp.IsSuccessPayment = utils.NullBoolToBool(data.IsSuccessPayment)
 
 	return
 }
