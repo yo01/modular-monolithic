@@ -35,6 +35,7 @@ func (r userPostgre) Select() (resp []model.User, merr merror.Error) {
 	rows, err := r.Carrier.Library.Sqlx.Queryx(SELECT_USER)
 	if err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -46,6 +47,7 @@ func (r userPostgre) Select() (resp []model.User, merr merror.Error) {
 		var user model.User
 		if err := rows.StructScan(&user); err != nil {
 			return nil, merror.Error{
+				Code:  500,
 				Error: err,
 			}
 		}
@@ -54,6 +56,7 @@ func (r userPostgre) Select() (resp []model.User, merr merror.Error) {
 
 	if err := rows.Err(); err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -65,6 +68,7 @@ func (r userPostgre) SelectByID(id string) (resp *model.User, merr merror.Error)
 	row, err := r.Carrier.Library.Sqlx.Queryx(SELECT_USER_BY_ID, id)
 	if err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -75,6 +79,7 @@ func (r userPostgre) SelectByID(id string) (resp *model.User, merr merror.Error)
 	for row.Next() {
 		if err := row.StructScan(&user); err != nil {
 			return nil, merror.Error{
+				Code:  500,
 				Error: err,
 			}
 		}
@@ -87,9 +92,10 @@ func (r userPostgre) Insert(data dto.CreateUserRequest) (merr merror.Error) {
 	// GENERATE NEW UUID
 	id := uuid.New()
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, INSERT_USER, id, data.Email, &data.Password, data.FullName)
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, INSERT_USER, id, data.Email, &data.Password, data.FullName, data.RoleID)
 	if row == nil {
 		return merror.Error{
+			Code:  500,
 			Error: row.Err(),
 		}
 	}
@@ -101,6 +107,7 @@ func (r userPostgre) Update(data dto.UpdateUserRequest, id string) (merr merror.
 	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_USER, id, data.FullName)
 	if row == nil {
 		return merror.Error{
+			Code:  500,
 			Error: row.Err(),
 		}
 	}

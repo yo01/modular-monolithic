@@ -65,6 +65,7 @@ func (r cartPostgre) SelectByID(id string) (resp *model.Cart, merr merror.Error)
 	row, err := r.Carrier.Library.Sqlx.Queryx(SELECT_CART_BY_ID, id)
 	if err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -75,6 +76,7 @@ func (r cartPostgre) SelectByID(id string) (resp *model.Cart, merr merror.Error)
 	for row.Next() {
 		if err := row.StructScan(&cart); err != nil {
 			return nil, merror.Error{
+				Code:  500,
 				Error: err,
 			}
 		}
@@ -90,6 +92,7 @@ func (r cartPostgre) Insert(data dto.CreateCartRequest) (merr merror.Error) {
 	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, INSERT_CART, id, data.ProductID)
 	if row == nil {
 		return merror.Error{
+			Code:  500,
 			Error: row.Err(),
 		}
 	}
@@ -101,6 +104,7 @@ func (r cartPostgre) Update(data dto.UpdateCartRequest, id string) (merr merror.
 	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_CART, id, data.ProductID)
 	if row == nil {
 		return merror.Error{
+			Code:  500,
 			Error: row.Err(),
 		}
 	}
@@ -114,6 +118,7 @@ func (r cartPostgre) Destroy(id string) (merr merror.Error) {
 	rowInt, _ := row.RowsAffected()
 	if rowInt == 0 {
 		return merror.Error{
+			Code:  404,
 			Error: fmt.Errorf("No cart found with ID %v to delete", id),
 		}
 	}

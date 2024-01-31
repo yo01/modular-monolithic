@@ -2,9 +2,8 @@ package helper
 
 import (
 	"modular-monolithic/model"
+	roleDTO "modular-monolithic/module/v1/role/dto"
 	"modular-monolithic/module/v1/user/dto"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 func PrepareToUsersResponse(data []model.User) (resp []dto.UserResponse) {
@@ -19,6 +18,11 @@ func PrepareToUsersResponse(data []model.User) (resp []dto.UserResponse) {
 		newDetail.ID = detail.ID
 		newDetail.Email = detail.Email
 		newDetail.FullName = detail.FullName
+		if detail.RoleName != nil {
+			newDetail.Role = new(roleDTO.RoleResponse)
+			newDetail.Role.ID = detail.RoleID
+			newDetail.Role.Name = *detail.RoleName
+		}
 
 		resp = append(resp, *newDetail)
 	}
@@ -32,21 +36,11 @@ func PrepareToDetailUserResponse(data *model.User) (resp *dto.UserResponse) {
 	resp.ID = data.ID
 	resp.Email = data.Email
 	resp.FullName = data.FullName
-
-	return
-}
-
-func Hash(password string) ([]byte, error) {
-	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-}
-
-func BycryptPassword(req dto.CreateUserRequest) (hashPassword string, err error) {
-	hashedPassword, err := Hash(req.Password)
-	if err != nil {
-		return "", err
+	if data.RoleName != nil {
+		resp.Role = new(roleDTO.RoleResponse)
+		resp.Role.ID = data.RoleID
+		resp.Role.Name = *data.RoleName
 	}
-
-	hashPassword = string(hashedPassword)
 
 	return
 }
