@@ -4,12 +4,14 @@ go 1.21.5
 
 require (
 	git.motiolabs.com/library/motiolibs v0.0.0-20240129001311-bdd7aed3cc26
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.5.0
 	github.com/gorilla/mux v1.8.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.9
 	github.com/rs/cors v1.10.1
 	github.com/spf13/viper v1.18.2
+	golang.org/x/crypto v0.16.0
 )
 
 require (
@@ -36,7 +38,6 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
-	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect

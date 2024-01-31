@@ -50,6 +50,16 @@ func (s *UserService) Detail(id string) (resp *dto.UserResponse, merr merror.Err
 }
 
 func (s *UserService) Save(req dto.CreateUserRequest) (merr merror.Error) {
+	// HASH PASSWORD
+	hashPassword, err := helper.BycryptPassword(req)
+	if err != nil {
+		return merror.Error{
+			Error: err,
+		}
+	}
+
+	req.Password = hashPassword
+
 	if err := s.UserRepository.UserPostgre.Insert(req); err.Error != nil {
 		return err
 	}
@@ -58,9 +68,7 @@ func (s *UserService) Save(req dto.CreateUserRequest) (merr merror.Error) {
 }
 
 func (s *UserService) Edit(req dto.UpdateUserRequest, id string) (merr merror.Error) {
-	err := s.UserRepository.UserPostgre.Update(req, id)
-
-	if err.Error != nil {
+	if err := s.UserRepository.UserPostgre.Update(req, id); err.Error != nil {
 		return err
 	}
 

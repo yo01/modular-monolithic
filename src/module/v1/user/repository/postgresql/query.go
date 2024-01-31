@@ -26,4 +26,9 @@ const (
 		DELETE FROM "user"
 		WHERE id = $1;
 	`
+
+	// ADDITIONAL
+	SELECT_USER_BY_EMAIL = `
+		SELECT * FROM "user" u WHERE u.email = $1
+	`
 )

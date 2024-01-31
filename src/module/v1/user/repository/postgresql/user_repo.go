@@ -16,6 +16,9 @@ type IUserPostgre interface {
 	Insert(data dto.CreateUserRequest) (merr merror.Error)
 	Update(data dto.UpdateUserRequest, id string) (merr merror.Error)
 	Destroy(id string) (merr merror.Error)
+
+	// ADDITIONAL
+	SelectByEmail(email string) (resp *model.User, merr merror.Error)
 }
 
 type userPostgre struct {
@@ -116,4 +119,27 @@ func (r userPostgre) Destroy(id string) (merr merror.Error) {
 	}
 
 	return merr
+}
+
+// ADDITIONAL
+func (r userPostgre) SelectByEmail(email string) (resp *model.User, merr merror.Error) {
+	row, err := r.Carrier.Library.Sqlx.Queryx(SELECT_USER_BY_EMAIL, email)
+	if err != nil {
+		return nil, merror.Error{
+			Error: err,
+		}
+	}
+	defer row.Close()
+
+	var user model.User
+
+	for row.Next() {
+		if err := row.StructScan(&user); err != nil {
+			return nil, merror.Error{
+				Error: err,
+			}
+		}
+	}
+
+	return &user, merr
 }
