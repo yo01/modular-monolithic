@@ -3,6 +3,7 @@ package v1
 import (
 	"modular-monolithic/app"
 	"modular-monolithic/module/v1/auth"
+	"modular-monolithic/module/v1/cart"
 	"modular-monolithic/module/v1/menu"
 	"modular-monolithic/module/v1/permission"
 	"modular-monolithic/module/v1/product"
@@ -37,6 +38,9 @@ func Inject(appConfig app.AppConfig) {
 
 	// transaction module
 	transaction.Inject(appConfig)
+
+	// cart module
+	cart.Inject(appConfig)
 
 	// auth module
 	auth.Inject(appConfig)
