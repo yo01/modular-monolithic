@@ -18,6 +18,7 @@ func PrepareToTransactionsResponse(data []model.Transaction) (resp []dto.Transac
 		newDetail.ID = detail.ID
 		newDetail.Name = detail.Name
 		newDetail.IsSuccessPayment = utils.NullBoolToBool(detail.IsSuccessPayment)
+		newDetail.PaymentDate = detail.PaymentDate
 
 		resp = append(resp, *newDetail)
 	}
@@ -31,6 +32,7 @@ func PrepareToDetailTransactionResponse(data *model.Transaction) (resp *dto.Tran
 	resp.ID = data.ID
 	resp.Name = data.Name
 	resp.IsSuccessPayment = utils.NullBoolToBool(data.IsSuccessPayment)
+	resp.PaymentDate = data.PaymentDate
 
 	return
 }

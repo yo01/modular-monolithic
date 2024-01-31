@@ -30,7 +30,7 @@ const (
 	// ADDITIONAL
 	UPDATE_TRANSACTION_PAYMENT = `
 		UPDATE "transaction"
-			SET ("is_success_payment", "updated_at") = ($2, NOW())
+			SET ("is_success_payment", "payment_date", "updated_at") = ($2, NOW(), NOW())
 		WHERE id = $1
 	`
 )
