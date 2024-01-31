@@ -6,6 +6,7 @@ import (
 	"modular-monolithic/module/v1/permission"
 	"modular-monolithic/module/v1/product"
 	"modular-monolithic/module/v1/role"
+	"modular-monolithic/module/v1/transaction"
 	"modular-monolithic/module/v1/user"
 )
 
@@ -32,4 +33,7 @@ func Inject(appConfig app.AppConfig) {
 
 	// product module
 	product.Inject(appConfig)
+
+	// transaction module
+	transaction.Inject(appConfig)
 }
