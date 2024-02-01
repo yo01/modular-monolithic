@@ -14,8 +14,10 @@ func InitRoutes(c HandlerConfig) {
 		UserService: c.UserService,
 	}
 
-	//User Register
-	authRoutes := c.R.PathPrefix("/auth").Subrouter()
+	// AUTH ROUTES WITH MIDDLEWARE
 
-	authRoutes.HandleFunc("/login", AuthHandler.Login).Methods(http.MethodPost).Name("auth.login")
+	// AUTH ROUTE WITHOUT MIDDLEWARE
+	authRoutesWithoutMiddleware := c.R.PathPrefix("/auth").Subrouter()
+
+	authRoutesWithoutMiddleware.HandleFunc("/login", AuthHandler.Login).Methods(http.MethodPost).Name("auth.login")
 }

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"modular-monolithic/module/v1/cart/handler"
+	"modular-monolithic/security/middleware"
 )
 
 // InitRoutes for the module
@@ -13,12 +14,15 @@ func InitRoutes(c HandlerConfig) {
 		CartService: c.CartService,
 	}
 
-	//User Register
-	cartRoutes := c.R.PathPrefix("/carts").Subrouter()
+	// CART ROUTES WITH MIDDLEWARE
+	cartRoutesWithMiddleware := c.R.PathPrefix("/carts").Subrouter()
+	cartRoutesWithMiddleware.Use(middleware.JWT)
 
-	cartRoutes.HandleFunc("/", CartHandler.List).Methods(http.MethodGet).Name("cart.list")
-	cartRoutes.HandleFunc("/{id}", CartHandler.Detail).Methods(http.MethodGet).Name("cart.detail")
-	cartRoutes.HandleFunc("/", CartHandler.Create).Methods(http.MethodPost).Name("cart.save")
-	cartRoutes.HandleFunc("/{id}", CartHandler.Edit).Methods(http.MethodPut).Name("cart.edit")
-	cartRoutes.HandleFunc("/{id}", CartHandler.Delete).Methods(http.MethodDelete).Name("cart.delete")
+	cartRoutesWithMiddleware.HandleFunc("/", CartHandler.List).Methods(http.MethodGet).Name("cart.list")
+	cartRoutesWithMiddleware.HandleFunc("/{id}", CartHandler.Detail).Methods(http.MethodGet).Name("cart.detail")
+	cartRoutesWithMiddleware.HandleFunc("/", CartHandler.Create).Methods(http.MethodPost).Name("cart.save")
+	cartRoutesWithMiddleware.HandleFunc("/{id}", CartHandler.Edit).Methods(http.MethodPut).Name("cart.edit")
+	cartRoutesWithMiddleware.HandleFunc("/{id}", CartHandler.Delete).Methods(http.MethodDelete).Name("cart.delete")
+
+	// CART ROUTES WITHOUT MIDDLEWARE
 }

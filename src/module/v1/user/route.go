@@ -14,13 +14,17 @@ func InitRoutes(c HandlerConfig) {
 		UserService: c.UserService,
 	}
 
-	//User Register
-	userRoutes := c.R.PathPrefix("/users").Subrouter()
-	userRoutes.Use(middleware.JWT)
+	// USER ROUTES WITH MIDDLEWARE
+	userRoutesWithMiddleware := c.R.PathPrefix("/users").Subrouter()
+	userRoutesWithMiddleware.Use(middleware.JWT)
 
-	userRoutes.HandleFunc("/", UserHandler.List).Methods(http.MethodGet).Name("user.list")
-	userRoutes.HandleFunc("/{id}", UserHandler.Detail).Methods(http.MethodGet).Name("user.detail")
-	userRoutes.HandleFunc("/", UserHandler.Create).Methods(http.MethodPost).Name("user.save")
-	userRoutes.HandleFunc("/{id}", UserHandler.Edit).Methods(http.MethodPut).Name("user.edit")
-	userRoutes.HandleFunc("/{id}", UserHandler.Delete).Methods(http.MethodDelete).Name("user.delete")
+	userRoutesWithMiddleware.HandleFunc("/{id}", UserHandler.Edit).Methods(http.MethodPut).Name("user.edit")
+	userRoutesWithMiddleware.HandleFunc("/{id}", UserHandler.Delete).Methods(http.MethodDelete).Name("user.delete")
+
+	// USER ROUTES WITHOUT MIDDLEWARE
+	userRoutesWithoutMiddleware := c.R.PathPrefix("/users").Subrouter()
+
+	userRoutesWithoutMiddleware.HandleFunc("/", UserHandler.List).Methods(http.MethodGet).Name("user.list")
+	userRoutesWithoutMiddleware.HandleFunc("/{id}", UserHandler.Detail).Methods(http.MethodGet).Name("user.detail")
+	userRoutesWithoutMiddleware.HandleFunc("/", UserHandler.Create).Methods(http.MethodPost).Name("user.save")
 }

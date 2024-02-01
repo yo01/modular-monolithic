@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"modular-monolithic/module/v1/permission/handler"
+	"modular-monolithic/security/middleware"
 )
 
 // InitRoutes for the module
@@ -13,12 +14,15 @@ func InitRoutes(c HandlerConfig) {
 		PermissionService: c.PermissionService,
 	}
 
-	//User Register
-	permissionRoutes := c.R.PathPrefix("/permissions").Subrouter()
+	// PERMISSION ROUTES WITH MIDDLEWARE
+	permissionRoutesWithMiddleware := c.R.PathPrefix("/permissions").Subrouter()
+	permissionRoutesWithMiddleware.Use(middleware.JWT)
 
-	permissionRoutes.HandleFunc("/", PermissionHandler.List).Methods(http.MethodGet).Name("permission.list")
-	permissionRoutes.HandleFunc("/{id}", PermissionHandler.Detail).Methods(http.MethodGet).Name("permission.detail")
-	permissionRoutes.HandleFunc("/", PermissionHandler.Create).Methods(http.MethodPost).Name("permission.save")
-	permissionRoutes.HandleFunc("/{id}", PermissionHandler.Edit).Methods(http.MethodPut).Name("permission.edit")
-	permissionRoutes.HandleFunc("/{id}", PermissionHandler.Delete).Methods(http.MethodDelete).Name("permission.delete")
+	permissionRoutesWithMiddleware.HandleFunc("/", PermissionHandler.List).Methods(http.MethodGet).Name("permission.list")
+	permissionRoutesWithMiddleware.HandleFunc("/{id}", PermissionHandler.Detail).Methods(http.MethodGet).Name("permission.detail")
+	permissionRoutesWithMiddleware.HandleFunc("/", PermissionHandler.Create).Methods(http.MethodPost).Name("permission.save")
+	permissionRoutesWithMiddleware.HandleFunc("/{id}", PermissionHandler.Edit).Methods(http.MethodPut).Name("permission.edit")
+	permissionRoutesWithMiddleware.HandleFunc("/{id}", PermissionHandler.Delete).Methods(http.MethodDelete).Name("permission.delete")
+
+	// PERMISSION ROUTES WITHOUT MIDDLEWARE
 }

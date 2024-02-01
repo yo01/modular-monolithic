@@ -13,17 +13,21 @@ import (
 func ValidateUserAccess(carrier *mcarrier.Carrier) merror.Error {
 	// MAIN VARIABLE
 	var res merror.Error
-	auth := carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	var context = carrier.Context.Value(middleware.AuthUserCtxKey)
 
-	if auth.User.Role.Name == "" {
-		res = merror.Error{
-			Code:  403,
-			Error: errors.New("access denied, you don't have role"),
-		}
-	} else if auth.User.Role.Name != "admin" {
-		res = merror.Error{
-			Code:  403,
-			Error: errors.New("access denied, you don't have an access to this api"),
+	if context != nil {
+		auth := context.(*model.Auth)
+
+		if auth.User.Role.Name == "" {
+			res = merror.Error{
+				Code:  403,
+				Error: errors.New("access denied, you don't have role"),
+			}
+		} else if auth.User.Role.Name != "admin" {
+			res = merror.Error{
+				Code:  403,
+				Error: errors.New("access denied, you don't have an access to this api"),
+			}
 		}
 	}
 
