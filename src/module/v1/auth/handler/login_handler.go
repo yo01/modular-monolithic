@@ -1,10 +1,11 @@
 package handler
 
 import (
+	"net/http"
+
 	"modular-monolithic/module/v1/auth/dto"
 	authService "modular-monolithic/module/v1/auth/service"
 	userService "modular-monolithic/module/v1/user/service"
-	"net/http"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/mhttp"

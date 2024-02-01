@@ -2,7 +2,6 @@ package permission
 
 import (
 	"modular-monolithic/app"
-
 	permissionService "modular-monolithic/module/v1/permission/service"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"

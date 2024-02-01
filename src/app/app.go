@@ -1,11 +1,13 @@
 package app
 
 import (
-	"modular-monolithic/config"
 	"net/http"
+
+	"modular-monolithic/config"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/mhttp"
+
 	"github.com/gorilla/mux"
 )
 
@@ -19,6 +21,7 @@ type AppConfig struct {
 // InitRouter - Create mux router
 func InitRouter(cfg *config.Config) *mux.Router {
 	router := mux.NewRouter()
+
 	//handle route not found
 	router.NotFoundHandler = http.HandlerFunc(mhttp.NotFoundHandler)
 

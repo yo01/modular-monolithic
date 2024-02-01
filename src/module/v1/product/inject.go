@@ -2,7 +2,6 @@ package product
 
 import (
 	"modular-monolithic/app"
-
 	productService "modular-monolithic/module/v1/product/service"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"

@@ -1,8 +1,9 @@
 package menu
 
 import (
-	"modular-monolithic/module/v1/menu/handler"
 	"net/http"
+
+	"modular-monolithic/module/v1/menu/handler"
 )
 
 // InitRoutes for the module

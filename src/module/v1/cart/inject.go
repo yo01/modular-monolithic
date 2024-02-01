@@ -2,7 +2,6 @@ package cart
 
 import (
 	"modular-monolithic/app"
-
 	cartService "modular-monolithic/module/v1/cart/service"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"

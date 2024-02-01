@@ -2,7 +2,6 @@ package transaction
 
 import (
 	"modular-monolithic/app"
-
 	transactionService "modular-monolithic/module/v1/transaction/service"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"

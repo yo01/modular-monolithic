@@ -3,9 +3,10 @@ package helper
 import (
 	"bytes"
 	"fmt"
-	"modular-monolithic/module/v1/transaction/dto"
 	"net/smtp"
 	"text/template"
+
+	"modular-monolithic/module/v1/transaction/dto"
 )
 
 func GenerateInvoiceHTML(data dto.Email) (string, error) {

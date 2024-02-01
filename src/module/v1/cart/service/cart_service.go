@@ -3,11 +3,10 @@ package service
 import (
 	"modular-monolithic/module/v1/cart/dto"
 	"modular-monolithic/module/v1/cart/helper"
+	cartRepository "modular-monolithic/module/v1/cart/repository"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
-
-	cartRepository "modular-monolithic/module/v1/cart/repository"
 )
 
 type ICartService interface {

@@ -2,7 +2,6 @@ package role
 
 import (
 	"modular-monolithic/app"
-
 	roleService "modular-monolithic/module/v1/role/service"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"

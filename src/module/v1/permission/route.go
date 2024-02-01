@@ -1,8 +1,9 @@
 package permission
 
 import (
-	"modular-monolithic/module/v1/permission/handler"
 	"net/http"
+
+	"modular-monolithic/module/v1/permission/handler"
 )
 
 // InitRoutes for the module

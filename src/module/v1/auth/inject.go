@@ -2,11 +2,11 @@ package auth
 
 import (
 	"modular-monolithic/app"
-
 	authService "modular-monolithic/module/v1/auth/service"
 	userService "modular-monolithic/module/v1/user/service"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
+
 	"github.com/gorilla/mux"
 )
 

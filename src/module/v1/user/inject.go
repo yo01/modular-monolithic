@@ -2,7 +2,6 @@ package user
 
 import (
 	"modular-monolithic/app"
-
 	userService "modular-monolithic/module/v1/user/service"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"

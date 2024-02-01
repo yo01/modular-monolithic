@@ -1,8 +1,9 @@
 package cart
 
 import (
-	"modular-monolithic/module/v1/cart/handler"
 	"net/http"
+
+	"modular-monolithic/module/v1/cart/handler"
 )
 
 // InitRoutes for the module

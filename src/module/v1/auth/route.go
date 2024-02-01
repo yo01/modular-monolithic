@@ -2,6 +2,7 @@ package auth
 
 import (
 	"modular-monolithic/module/v1/auth/handler"
+
 	"net/http"
 )
 

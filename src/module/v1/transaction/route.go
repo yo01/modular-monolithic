@@ -1,8 +1,9 @@
 package transaction
 
 import (
-	"modular-monolithic/module/v1/transaction/handler"
 	"net/http"
+
+	"modular-monolithic/module/v1/transaction/handler"
 )
 
 // InitRoutes for the module

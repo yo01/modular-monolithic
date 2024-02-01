@@ -2,11 +2,13 @@ package postgresql
 
 import (
 	"fmt"
+
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/user/dto"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
+
 	"github.com/google/uuid"
 )
 

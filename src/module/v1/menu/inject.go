@@ -2,7 +2,6 @@ package menu
 
 import (
 	"modular-monolithic/app"
-
 	menuService "modular-monolithic/module/v1/menu/service"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"

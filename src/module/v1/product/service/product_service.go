@@ -3,9 +3,8 @@ package service
 import (
 	"modular-monolithic/module/v1/product/dto"
 	"modular-monolithic/module/v1/product/helper"
-	"modular-monolithic/module/v1/product/validation"
-
 	productRepository "modular-monolithic/module/v1/product/repository"
+	"modular-monolithic/module/v1/product/validation"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"

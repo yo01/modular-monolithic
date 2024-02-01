@@ -1,8 +1,9 @@
 package dto
 
 import (
-	"modular-monolithic/module/v1/role/dto"
 	"time"
+
+	"modular-monolithic/module/v1/role/dto"
 
 	"github.com/google/uuid"
 )

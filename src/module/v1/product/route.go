@@ -1,8 +1,9 @@
 package product
 
 import (
-	"modular-monolithic/module/v1/product/handler"
 	"net/http"
+
+	"modular-monolithic/module/v1/product/handler"
 )
 
 // InitRoutes for the module

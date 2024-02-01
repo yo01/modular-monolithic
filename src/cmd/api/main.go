@@ -3,18 +3,20 @@ package main
 import (
 	"context"
 	"fmt"
-	"modular-monolithic/app"
-	"modular-monolithic/app/database/sqlx"
-	"modular-monolithic/app/logger"
-	"modular-monolithic/config"
-	"modular-monolithic/module"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"modular-monolithic/app"
+	"modular-monolithic/app/database/sqlx"
+	"modular-monolithic/app/logger"
+	"modular-monolithic/config"
+	"modular-monolithic/module"
+
 	"git.motiolabs.com/library/motiolibs/mcarrier"
+
 	"github.com/rs/cors"
 )
 

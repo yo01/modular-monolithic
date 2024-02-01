@@ -3,12 +3,11 @@ package service
 import (
 	"modular-monolithic/module/v1/permission/dto"
 	"modular-monolithic/module/v1/permission/helper"
+	permissionRepository "modular-monolithic/module/v1/permission/repository"
 	"modular-monolithic/module/v1/permission/validation"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
-
-	permissionRepository "modular-monolithic/module/v1/permission/repository"
 )
 
 type IPermissionService interface {
