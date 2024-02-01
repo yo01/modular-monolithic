@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"modular-monolithic/module/v1/menu/dto"
 	"modular-monolithic/module/v1/menu/helper"
 	menuRepository "modular-monolithic/module/v1/menu/repository"
@@ -8,6 +10,8 @@ import (
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
+
+	"github.com/google/uuid"
 )
 
 type IMenuService interface {
@@ -55,6 +59,11 @@ func (s *MenuService) Detail(id string) (resp *dto.MenuResponse, merr merror.Err
 	fetch, err := s.MenuRepository.MenuPostgre.SelectByID(id)
 	if err.Error != nil {
 		return nil, err
+	} else if fetch.ID == uuid.Nil {
+		return nil, merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("menu with id %v is not found", id),
+		}
 	}
 
 	return helper.PrepareToDetailMenuResponse(fetch), err
@@ -79,6 +88,14 @@ func (s *MenuService) Edit(req dto.UpdateMenuRequest, id string) (merr merror.Er
 		return err
 	}
 
+	fetch, _ := s.MenuRepository.MenuPostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("menu with id %v is not found", id),
+		}
+	}
+
 	if err := s.MenuRepository.MenuPostgre.Update(req, id); err.Error != nil {
 		return err
 	}
@@ -90,6 +107,14 @@ func (s *MenuService) Delete(id string) (merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateMenuAccess(s.Carrier); err.Error != nil {
 		return err
+	}
+
+	fetch, _ := s.MenuRepository.MenuPostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("menu with id %v is not found", id),
+		}
 	}
 
 	if err := s.MenuRepository.MenuPostgre.Destroy(id); err.Error != nil {

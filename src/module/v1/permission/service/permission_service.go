@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"modular-monolithic/module/v1/permission/dto"
 	"modular-monolithic/module/v1/permission/helper"
 	permissionRepository "modular-monolithic/module/v1/permission/repository"
@@ -8,6 +10,8 @@ import (
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
+
+	"github.com/google/uuid"
 )
 
 type IPermissionService interface {
@@ -55,6 +59,11 @@ func (s *PermissionService) Detail(id string) (resp *dto.PermissionResponse, mer
 	fetch, err := s.PermissionRepository.PermissionPostgre.SelectByID(id)
 	if err.Error != nil {
 		return nil, err
+	} else if fetch.ID == uuid.Nil {
+		return nil, merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("permission with id %v is not found", id),
+		}
 	}
 
 	return helper.PrepareToDetailPermissionResponse(fetch), err
@@ -79,6 +88,14 @@ func (s *PermissionService) Edit(req dto.UpdatePermissionRequest, id string) (me
 		return err
 	}
 
+	fetch, _ := s.PermissionRepository.PermissionPostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("permission with id %v is not found", id),
+		}
+	}
+
 	if err := s.PermissionRepository.PermissionPostgre.Update(req, id); err.Error != nil {
 		return err
 	}
@@ -90,6 +107,14 @@ func (s *PermissionService) Delete(id string) (merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
 		return err
+	}
+
+	fetch, _ := s.PermissionRepository.PermissionPostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("permission with id %v is not found", id),
+		}
 	}
 
 	if err := s.PermissionRepository.PermissionPostgre.Destroy(id); err.Error != nil {

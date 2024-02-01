@@ -1,12 +1,16 @@
 package service
 
 import (
+	"fmt"
+
 	"modular-monolithic/module/v1/user/dto"
 	"modular-monolithic/module/v1/user/helper"
 	userRepository "modular-monolithic/module/v1/user/repository"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
+
+	"github.com/google/uuid"
 )
 
 type IUserService interface {
@@ -44,6 +48,11 @@ func (s *UserService) Detail(id string) (resp *dto.UserResponse, merr merror.Err
 	fetch, err := s.UserRepository.UserPostgre.SelectByID(id)
 	if err.Error != nil {
 		return nil, err
+	} else if fetch.ID == uuid.Nil {
+		return nil, merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("user with id %v is not found", id),
+		}
 	}
 
 	return helper.PrepareToDetailUserResponse(fetch), err
@@ -68,6 +77,14 @@ func (s *UserService) Save(req dto.CreateUserRequest) (merr merror.Error) {
 }
 
 func (s *UserService) Edit(req dto.UpdateUserRequest, id string) (merr merror.Error) {
+	fetch, _ := s.UserRepository.UserPostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("user with id %v is not found", id),
+		}
+	}
+
 	if err := s.UserRepository.UserPostgre.Update(req, id); err.Error != nil {
 		return err
 	}
@@ -76,6 +93,14 @@ func (s *UserService) Edit(req dto.UpdateUserRequest, id string) (merr merror.Er
 }
 
 func (s *UserService) Delete(id string) (merr merror.Error) {
+	fetch, _ := s.UserRepository.UserPostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("user with id %v is not found", id),
+		}
+	}
+
 	if err := s.UserRepository.UserPostgre.Destroy(id); err.Error != nil {
 		return err
 	}

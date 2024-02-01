@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"modular-monolithic/config"
 	"modular-monolithic/module/v1/transaction/dto"
 	"modular-monolithic/module/v1/transaction/helper"
@@ -8,6 +10,8 @@ import (
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
+
+	"github.com/google/uuid"
 )
 
 type ITransactionService interface {
@@ -48,6 +52,11 @@ func (s *TransactionService) Detail(id string) (resp *dto.TransactionResponse, m
 	fetch, err := s.TransactionRepository.TransactionPostgre.SelectByID(id)
 	if err.Error != nil {
 		return nil, err
+	} else if fetch.ID == uuid.Nil {
+		return nil, merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("transaction with id %v is not found", id),
+		}
 	}
 
 	return helper.PrepareToDetailTransactionResponse(fetch), err
@@ -62,6 +71,14 @@ func (s *TransactionService) Save(req dto.CreateTransactionRequest) (merr merror
 }
 
 func (s *TransactionService) Edit(req dto.UpdateTransactionRequest, id string) (merr merror.Error) {
+	fetch, _ := s.TransactionRepository.TransactionPostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("transaction with id %v is not found", id),
+		}
+	}
+
 	if err := s.TransactionRepository.TransactionPostgre.Update(req, id); err.Error != nil {
 		return err
 	}
@@ -70,6 +87,14 @@ func (s *TransactionService) Edit(req dto.UpdateTransactionRequest, id string) (
 }
 
 func (s *TransactionService) Delete(id string) (merr merror.Error) {
+	fetch, _ := s.TransactionRepository.TransactionPostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("transaction with id %v is not found", id),
+		}
+	}
+
 	if err := s.TransactionRepository.TransactionPostgre.Destroy(id); err.Error != nil {
 		return err
 	}
@@ -80,6 +105,14 @@ func (s *TransactionService) Delete(id string) (merr merror.Error) {
 // ADDITIONAL
 
 func (s *TransactionService) Payment(id string) (merr merror.Error) {
+	fetch, _ := s.TransactionRepository.TransactionPostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("transaction with id %v is not found", id),
+		}
+	}
+
 	if err := s.TransactionRepository.TransactionPostgre.Payment(id); err.Error != nil {
 		return err
 	}

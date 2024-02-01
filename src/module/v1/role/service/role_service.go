@@ -1,8 +1,12 @@
 package service
 
 import (
+	"fmt"
+
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
+
+	"github.com/google/uuid"
 
 	"modular-monolithic/module/v1/role/dto"
 	"modular-monolithic/module/v1/role/helper"
@@ -55,6 +59,11 @@ func (s *RoleService) Detail(id string) (resp *dto.RoleResponse, merr merror.Err
 	fetch, err := s.RoleRepository.RolePostgre.SelectByID(id)
 	if err.Error != nil {
 		return nil, err
+	} else if fetch.ID == uuid.Nil {
+		return nil, merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("role with id %v is not found", id),
+		}
 	}
 
 	return helper.PrepareToDetailRoleResponse(fetch), err
@@ -79,6 +88,14 @@ func (s *RoleService) Edit(req dto.UpdateRoleRequest, id string) (merr merror.Er
 		return err
 	}
 
+	fetch, _ := s.RoleRepository.RolePostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("role with id %v is not found", id),
+		}
+	}
+
 	if err := s.RoleRepository.RolePostgre.Update(req, id); err.Error != nil {
 		return err
 	}
@@ -90,6 +107,14 @@ func (s *RoleService) Delete(id string) (merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateRoleAccess(s.Carrier); err.Error != nil {
 		return err
+	}
+
+	fetch, _ := s.RoleRepository.RolePostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("role with id %v is not found", id),
+		}
 	}
 
 	if err := s.RoleRepository.RolePostgre.Destroy(id); err.Error != nil {

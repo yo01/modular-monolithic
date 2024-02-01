@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"modular-monolithic/module/v1/product/dto"
 	"modular-monolithic/module/v1/product/helper"
 	productRepository "modular-monolithic/module/v1/product/repository"
@@ -8,6 +10,8 @@ import (
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
+
+	"github.com/google/uuid"
 )
 
 type IProductService interface {
@@ -45,6 +49,11 @@ func (s *ProductService) Detail(id string) (resp *dto.ProductResponse, merr merr
 	fetch, err := s.ProductRepository.ProductPostgre.SelectByID(id)
 	if err.Error != nil {
 		return nil, err
+	} else if fetch.ID == uuid.Nil {
+		return nil, merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("product with id %v is not found", id),
+		}
 	}
 
 	return helper.PrepareToDetailProductResponse(fetch), err
@@ -69,6 +78,14 @@ func (s *ProductService) Edit(req dto.UpdateProductRequest, id string) (merr mer
 		return err
 	}
 
+	fetch, _ := s.ProductRepository.ProductPostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("product with id %v is not found", id),
+		}
+	}
+
 	if err := s.ProductRepository.ProductPostgre.Update(req, id); err.Error != nil {
 		return err
 	}
@@ -80,6 +97,14 @@ func (s *ProductService) Delete(id string) (merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateProductAccess(s.Carrier); err.Error != nil {
 		return err
+	}
+
+	fetch, _ := s.ProductRepository.ProductPostgre.SelectByID(id)
+	if fetch.ID == uuid.Nil {
+		return merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("product with id %v is not found", id),
+		}
 	}
 
 	if err := s.ProductRepository.ProductPostgre.Destroy(id); err.Error != nil {
