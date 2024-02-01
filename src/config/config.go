@@ -23,6 +23,9 @@ type Config struct {
 	PgDatabase   string
 	PgTimezone   string
 	PgSslMode    string
+	JwtKey       string
+	JwtExpired   int
+	JwtRefresh   int
 	AppPort      int
 	PgPort       int
 	AppDebug     bool
@@ -72,6 +75,9 @@ func load() Config {
 		PgDatabase:   viper.GetString("postgresql.database"),
 		PgSslMode:    viper.GetString("postgresql.sslmode"),
 		PgTimezone:   viper.GetString("postgresql.timezone"),
+		JwtKey:       viper.GetString("jwt.key"),
+		JwtExpired:   viper.GetInt("jwt.expired"),
+		JwtRefresh:   viper.GetInt("jwt.refresh"),
 
 		// ADDITIONAL
 		SMTPServer:   viper.GetString("email.SMTPServer"),

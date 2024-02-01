@@ -7,6 +7,7 @@ import (
 	"modular-monolithic/module/v1/role/dto"
 	"modular-monolithic/module/v1/role/helper"
 	roleRepository "modular-monolithic/module/v1/role/repository"
+	"modular-monolithic/module/v1/role/validation"
 )
 
 type IRoleService interface {
@@ -32,6 +33,11 @@ func NewRoleService(carrier *mcarrier.Carrier) IRoleService {
 }
 
 func (s *RoleService) List() (resp []dto.RoleResponse, merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidateRoleAccess(s.Carrier); err.Error != nil {
+		return resp, err
+	}
+
 	fetch, err := s.RoleRepository.RolePostgre.Select()
 	if err.Error != nil {
 		return resp, err
@@ -41,6 +47,11 @@ func (s *RoleService) List() (resp []dto.RoleResponse, merr merror.Error) {
 }
 
 func (s *RoleService) Detail(id string) (resp *dto.RoleResponse, merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidateRoleAccess(s.Carrier); err.Error != nil {
+		return resp, err
+	}
+
 	fetch, err := s.RoleRepository.RolePostgre.SelectByID(id)
 	if err.Error != nil {
 		return nil, err
@@ -50,6 +61,11 @@ func (s *RoleService) Detail(id string) (resp *dto.RoleResponse, merr merror.Err
 }
 
 func (s *RoleService) Save(req dto.CreateRoleRequest) (merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidateRoleAccess(s.Carrier); err.Error != nil {
+		return err
+	}
+
 	if err := s.RoleRepository.RolePostgre.Insert(req); err.Error != nil {
 		return err
 	}
@@ -58,6 +74,11 @@ func (s *RoleService) Save(req dto.CreateRoleRequest) (merr merror.Error) {
 }
 
 func (s *RoleService) Edit(req dto.UpdateRoleRequest, id string) (merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidateRoleAccess(s.Carrier); err.Error != nil {
+		return err
+	}
+
 	if err := s.RoleRepository.RolePostgre.Update(req, id); err.Error != nil {
 		return err
 	}
@@ -66,6 +87,11 @@ func (s *RoleService) Edit(req dto.UpdateRoleRequest, id string) (merr merror.Er
 }
 
 func (s *RoleService) Delete(id string) (merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidateRoleAccess(s.Carrier); err.Error != nil {
+		return err
+	}
+
 	if err := s.RoleRepository.RolePostgre.Destroy(id); err.Error != nil {
 		return err
 	}

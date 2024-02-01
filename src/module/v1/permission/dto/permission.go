@@ -9,6 +9,7 @@ import (
 type Permission struct {
 	ID        uuid.UUID
 	Name      string
+	UserID    []uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt *time.Time
 	DeletedAt *time.Time

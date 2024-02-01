@@ -9,12 +9,10 @@ import (
 	roleDTO "modular-monolithic/module/v1/role/dto"
 	userRepository "modular-monolithic/module/v1/user/repository"
 
-	"time"
-
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
+	"git.motiolabs.com/library/motiolibs/mtoken"
 
-	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -40,12 +38,13 @@ func NewAuthService(carrier *mcarrier.Carrier) IAuthService {
 }
 
 func (s *AuthService) SignIn(req dto.LoginRequest) (resp *dto.LoginResponse, merr merror.Error) {
-	// GET DETAIL USER BY EMAIL
+	// Get user details by email
 	user, err := s.UserRepository.UserPostgre.SelectByEmail(req.Email)
 	if err.Error != nil {
 		return nil, err
 	}
 
+	// Verify password
 	if err := helper.VerifyPassword(*user.Password, req.Password); err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		return nil, merror.Error{
 			Code:  500,
@@ -53,41 +52,60 @@ func (s *AuthService) SignIn(req dto.LoginRequest) (resp *dto.LoginResponse, mer
 		}
 	}
 
-	token, error := CreateToken(user)
-	if error != nil {
-		return nil, merror.Error{
-			Code:  500,
-			Error: error,
-		}
+	// Create tokens
+	accessToken, refreshToken, err := CreateToken(user)
+	if err.Error != nil {
+		return nil, err
 	}
 
-	resp = new(dto.LoginResponse)
-	resp.ID = user.ID
-	resp.FullName = user.FullName
-	resp.Email = user.Email
-	if user.RoleName != nil {
-		resp.Role = new(roleDTO.RoleResponse)
-		resp.Role.ID = user.RoleID
-		resp.Role.Name = *user.RoleName
+	// Build the response
+	resp = &dto.LoginResponse{
+		ID:           user.ID,
+		FullName:     user.FullName,
+		Email:        user.Email,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}
-	resp.Token = token
+
+	// Include role details if available
+	if user.RoleName != nil {
+		resp.Role = &roleDTO.RoleResponse{
+			ID:   user.RoleID,
+			Name: *user.RoleName,
+		}
+	}
 
 	return resp, merr
 }
 
-func CreateToken(user *model.User) (string, error) {
-	claims := jwt.MapClaims{}
-	claims["authorized"] = true
-	claims["user_id"] = user.ID
-	claims["email"] = user.Email
-	claims["full_name"] = user.FullName
-	claims["role_id"] = user.RoleID
-	claims["role_name"] = user.RoleName
-	claims["exp"] = time.Now().Local().Add(time.Hour * 24 * 7).Unix()
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	// GET CONFIG DATA
+func CreateToken(user *model.User) (accessToken, refreshToken string, err merror.Error) {
+	// Get config data
 	config := config.Get()
 
-	return token.SignedString([]byte(config.AppApiKey))
+	// Build claims
+	claims := model.Claims{
+		Authorized: true,
+		UserID:     user.ID,
+		Email:      user.Email,
+		FullName:   user.FullName,
+		RoleID:     user.RoleID,
+	}
+
+	// Include role details if available
+	if user.RoleName != nil {
+		claims.RoleName = *user.RoleName
+	}
+
+	// Generate JWT tokens
+	accessToken, refreshToken, err = mtoken.GenerateJWTToken(mtoken.JWTConfig{
+		SecretKey:              config.JwtKey,
+		AccessTokenExpireTime:  int32(config.JwtExpired),
+		RefreshTokenExpireTime: int32(config.JwtRefresh),
+	}, claims)
+
+	if err.Error != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, err
 }

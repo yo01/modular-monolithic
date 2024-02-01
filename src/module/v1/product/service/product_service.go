@@ -3,6 +3,7 @@ package service
 import (
 	"modular-monolithic/module/v1/product/dto"
 	"modular-monolithic/module/v1/product/helper"
+	"modular-monolithic/module/v1/product/validation"
 
 	productRepository "modular-monolithic/module/v1/product/repository"
 
@@ -51,6 +52,11 @@ func (s *ProductService) Detail(id string) (resp *dto.ProductResponse, merr merr
 }
 
 func (s *ProductService) Save(req dto.CreateProductRequest) (merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidateProductAccess(s.Carrier); err.Error != nil {
+		return err
+	}
+
 	if err := s.ProductRepository.ProductPostgre.Insert(req); err.Error != nil {
 		return err
 	}
@@ -59,6 +65,11 @@ func (s *ProductService) Save(req dto.CreateProductRequest) (merr merror.Error) 
 }
 
 func (s *ProductService) Edit(req dto.UpdateProductRequest, id string) (merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidateProductAccess(s.Carrier); err.Error != nil {
+		return err
+	}
+
 	if err := s.ProductRepository.ProductPostgre.Update(req, id); err.Error != nil {
 		return err
 	}
@@ -67,6 +78,11 @@ func (s *ProductService) Edit(req dto.UpdateProductRequest, id string) (merr mer
 }
 
 func (s *ProductService) Delete(id string) (merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidateProductAccess(s.Carrier); err.Error != nil {
+		return err
+	}
+
 	if err := s.ProductRepository.ProductPostgre.Destroy(id); err.Error != nil {
 		return err
 	}

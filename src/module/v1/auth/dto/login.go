@@ -25,9 +25,10 @@ type LoginRequest struct {
 
 // Response
 type LoginResponse struct {
-	ID       uuid.UUID         `json:"id"`
-	FullName string            `json:"full_name"`
-	Email    string            `json:"email"`
-	Role     *dto.RoleResponse `json:"role"`
-	Token    string            `json:"token"`
+	ID           uuid.UUID         `json:"id"`
+	FullName     string            `json:"full_name"`
+	Email        string            `json:"email"`
+	Role         *dto.RoleResponse `json:"role"`
+	AccessToken  string            `json:"access_token"`
+	RefreshToken string            `json:"refresh_token"`
 }

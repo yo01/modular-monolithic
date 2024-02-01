@@ -9,6 +9,9 @@ import (
 type Transaction struct {
 	ID        uuid.UUID
 	Name      string
+	ProductID uuid.UUID
+	UserID    uuid.UUID
+	CartID    uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt *time.Time
 	DeletedAt *time.Time

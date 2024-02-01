@@ -39,7 +39,7 @@ func main() {
 	//Set App Routes
 	router := app.InitRouter(cfg)
 
-	//course
+	//cors
 	c := cors.New(cors.Options{
 		AllowedMethods:   []string{"POST, GET, OPTIONS, PUT, DELETE"},
 		AllowedOrigins:   []string{"*"},

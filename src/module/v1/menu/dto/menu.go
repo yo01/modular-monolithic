@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type Permission struct {
+type Menu struct {
 	ID        uuid.UUID
 	Name      string
 	CreatedAt time.Time

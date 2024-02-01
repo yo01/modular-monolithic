@@ -9,7 +9,7 @@ import (
 // Init Table
 type Cart struct {
 	ID        uuid.UUID  `db:"id"`
-	ProductID string     `db:"product_id"`
+	ProductID uuid.UUID  `db:"product_id"`
 	CreatedAt time.Time  `db:"created_at"`
 	UpdatedAt *time.Time `db:"updated_at"`
 	DeletedAt *time.Time `db:"deleted_at"`

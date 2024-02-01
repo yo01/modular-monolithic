@@ -2,6 +2,8 @@ package user
 
 import (
 	"modular-monolithic/module/v1/user/handler"
+	"modular-monolithic/security/middleware"
+
 	"net/http"
 )
 
@@ -14,6 +16,7 @@ func InitRoutes(c HandlerConfig) {
 
 	//User Register
 	userRoutes := c.R.PathPrefix("/users").Subrouter()
+	userRoutes.Use(middleware.JWT)
 
 	userRoutes.HandleFunc("/", UserHandler.List).Methods(http.MethodGet).Name("user.list")
 	userRoutes.HandleFunc("/{id}", UserHandler.Detail).Methods(http.MethodGet).Name("user.detail")

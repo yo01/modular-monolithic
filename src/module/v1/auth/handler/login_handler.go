@@ -18,27 +18,24 @@ type AuthHandler struct {
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	var (
-		req dto.LoginRequest
-	)
+	var req dto.LoginRequest
 
-	// Validation
-	merr := mhttp.ValidateRequest(r, &req)
-	if merr.Error != nil {
+	// Validate request
+	if merr := mhttp.ValidateRequest(r, &req); merr.Error != nil {
 		mresponse.Failed(w, merr)
 		return
 	}
 
-	// Init carrier
+	// Initialize carrier
 	h.Carrier.Context = r.Context()
 
-	// Init Service
+	// Invoke service to handle login
 	resp, merr := h.AuthService.SignIn(req)
 	if merr.Error != nil {
 		mresponse.Failed(w, merr)
 		return
 	}
 
-	// Return Response
+	// Return successful response
 	mresponse.Success(w, "Success", http.StatusOK, resp)
 }

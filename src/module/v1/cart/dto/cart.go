@@ -6,9 +6,9 @@ import (
 	"github.com/google/uuid"
 )
 
-type Permission struct {
+type Cart struct {
 	ID        uuid.UUID
-	ProductID string
+	ProductID uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt *time.Time
 	DeletedAt *time.Time
@@ -26,5 +26,6 @@ type UpdateCartRequest struct {
 // Response
 type CartResponse struct {
 	ID        uuid.UUID `json:"id"`
-	ProductID string    `json:"product_id"`
+	ProductID uuid.UUID `json:"product_id"`
+	UserID    uuid.UUID `json:"user_id"`
 }

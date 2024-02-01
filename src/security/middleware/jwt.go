@@ -2,58 +2,61 @@ package middleware
 
 import (
 	"context"
-	"modular-monolithic/config"
+	"encoding/json"
 	"net/http"
 	"strings"
 
-	"github.com/golang-jwt/jwt"
+	"modular-monolithic/config"
+	"modular-monolithic/model"
+	"modular-monolithic/module/v1/role/dto"
+
+	"git.motiolabs.com/library/motiolibs/mresponse"
+	"git.motiolabs.com/library/motiolibs/mtoken"
 )
 
-func MiddlewareAuthentication(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		tokenString := extractTokenFromHeader(r)
-		if tokenString == "" {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+type ctxKey struct {
+	name string
+}
+
+var (
+	AuthUserCtxKey = &ctxKey{"Auth"}
+)
+
+var SECRET_KEY = config.Get().JwtKey
+var SECRET_EXPIRED = int32(config.Get().JwtExpired)
+
+func JWT(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var authorization = r.Header.Get("authorization")
+		token := strings.TrimSpace(strings.Replace(authorization, "Bearer", "", 1))
+
+		json.NewEncoder(w).Encode(r)
+		token = strings.TrimSpace(token)
+
+		data, err := mtoken.ValidateJWTToken(token, SECRET_KEY)
+		if err.Error != nil {
+			mresponse.Failed(w, err)
 			return
 		}
 
-		token, err := validateToken(tokenString)
-		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
+		//claims
+		var claims model.Claims
+		claimsBytes, _ := json.Marshal(data)
+		json.Unmarshal(claimsBytes, &claims)
+
+		auth := &model.Auth{
+			User: model.AuthUser{
+				ID:       claims.UserID,
+				FullName: claims.FullName,
+				Role: dto.RoleResponse{
+					ID:   claims.RoleID,
+					Name: claims.RoleName,
+				},
+			},
+			Token: token,
 		}
 
-		// Attach the user information from the token to the request context for later use
-		ctx := context.WithValue(r.Context(), "user", token.Claims.(*jwt.StandardClaims).Subject)
-		next(w, r.WithContext(ctx))
-	}
-}
-
-func extractTokenFromHeader(r *http.Request) string {
-	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" {
-		return ""
-	}
-
-	splitToken := strings.Split(authHeader, "Bearer ")
-	if len(splitToken) != 2 {
-		return ""
-	}
-
-	return splitToken[1]
-}
-
-func validateToken(tokenString string) (*jwt.Token, error) {
-	// LOAD CONFIG DATA
-	config := config.Get()
-
-	token, err := jwt.ParseWithClaims(tokenString, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(config.AppApiKey), nil
+		ctx := context.WithValue(r.Context(), AuthUserCtxKey, auth)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return token, nil
 }

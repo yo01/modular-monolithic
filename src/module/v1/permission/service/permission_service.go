@@ -3,6 +3,7 @@ package service
 import (
 	"modular-monolithic/module/v1/permission/dto"
 	"modular-monolithic/module/v1/permission/helper"
+	"modular-monolithic/module/v1/permission/validation"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
@@ -33,6 +34,11 @@ func NewRoleService(carrier *mcarrier.Carrier) IPermissionService {
 }
 
 func (s *PermissionService) List() (resp []dto.PermissionResponse, merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
+		return resp, err
+	}
+
 	fetch, err := s.PermissionRepository.PermissionPostgre.Select()
 	if err.Error != nil {
 		return resp, err
@@ -42,6 +48,11 @@ func (s *PermissionService) List() (resp []dto.PermissionResponse, merr merror.E
 }
 
 func (s *PermissionService) Detail(id string) (resp *dto.PermissionResponse, merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
+		return resp, err
+	}
+
 	fetch, err := s.PermissionRepository.PermissionPostgre.SelectByID(id)
 	if err.Error != nil {
 		return nil, err
@@ -51,6 +62,11 @@ func (s *PermissionService) Detail(id string) (resp *dto.PermissionResponse, mer
 }
 
 func (s *PermissionService) Save(req dto.CreatePermissionRequest) (merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
+		return err
+	}
+
 	if err := s.PermissionRepository.PermissionPostgre.Insert(req); err.Error != nil {
 		return err
 	}
@@ -59,6 +75,11 @@ func (s *PermissionService) Save(req dto.CreatePermissionRequest) (merr merror.E
 }
 
 func (s *PermissionService) Edit(req dto.UpdatePermissionRequest, id string) (merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
+		return err
+	}
+
 	if err := s.PermissionRepository.PermissionPostgre.Update(req, id); err.Error != nil {
 		return err
 	}
@@ -67,6 +88,11 @@ func (s *PermissionService) Edit(req dto.UpdatePermissionRequest, id string) (me
 }
 
 func (s *PermissionService) Delete(id string) (merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
+		return err
+	}
+
 	if err := s.PermissionRepository.PermissionPostgre.Destroy(id); err.Error != nil {
 		return err
 	}
