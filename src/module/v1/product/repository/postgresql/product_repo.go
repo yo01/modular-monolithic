@@ -1,9 +1,9 @@
 package postgresql
 
 import (
-	"fmt"
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/product/dto"
+	"modular-monolithic/security/middleware"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
@@ -32,6 +32,7 @@ func (r productPostgre) Select() (resp []model.Product, merr merror.Error) {
 	rows, err := r.Carrier.Library.Sqlx.Queryx(SELECT_PRODUCT)
 	if err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -43,6 +44,7 @@ func (r productPostgre) Select() (resp []model.Product, merr merror.Error) {
 		var product model.Product
 		if err := rows.StructScan(&product); err != nil {
 			return nil, merror.Error{
+				Code:  500,
 				Error: err,
 			}
 		}
@@ -62,6 +64,7 @@ func (r productPostgre) SelectByID(id string) (resp *model.Product, merr merror.
 	row, err := r.Carrier.Library.Sqlx.Queryx(SELECT_PRODUCT_BY_ID, id)
 	if err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -72,6 +75,7 @@ func (r productPostgre) SelectByID(id string) (resp *model.Product, merr merror.
 	for row.Next() {
 		if err := row.StructScan(&product); err != nil {
 			return nil, merror.Error{
+				Code:  500,
 				Error: err,
 			}
 		}
@@ -87,6 +91,7 @@ func (r productPostgre) Insert(data dto.CreateProductRequest) (merr merror.Error
 	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, INSERT_PRODUCT, id, data.Name)
 	if row == nil {
 		return merror.Error{
+			Code:  500,
 			Error: row.Err(),
 		}
 	}
@@ -95,9 +100,14 @@ func (r productPostgre) Insert(data dto.CreateProductRequest) (merr merror.Error
 }
 
 func (r productPostgre) Update(data dto.UpdateProductRequest, id string) (merr merror.Error) {
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_PRODUCT, id, data.Name)
+	// MAIN VARIABLE
+	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	authUser := auth.User
+
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_PRODUCT, id, data.Name, authUser.ID, authUser.FullName)
 	if row == nil {
 		return merror.Error{
+			Code:  500,
 			Error: row.Err(),
 		}
 	}
@@ -106,12 +116,15 @@ func (r productPostgre) Update(data dto.UpdateProductRequest, id string) (merr m
 }
 
 func (r productPostgre) Destroy(id string) (merr merror.Error) {
-	row, _ := r.Carrier.Library.Sqlx.Exec(DELETE_PRODUCT, id)
+	// MAIN VARIABLE
+	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	authUser := auth.User
 
-	rowInt, _ := row.RowsAffected()
-	if rowInt == 0 {
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_PRODUCT, id, authUser.ID, authUser.FullName)
+	if row == nil {
 		return merror.Error{
-			Error: fmt.Errorf("No product found with ID %v to delete", id),
+			Code:  500,
+			Error: row.Err(),
 		}
 	}
 

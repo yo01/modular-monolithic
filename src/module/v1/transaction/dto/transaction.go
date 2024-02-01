@@ -28,8 +28,10 @@ type UpdateTransactionRequest struct {
 
 // Response
 type TransactionResponse struct {
-	ID               uuid.UUID  `json:"id"`
-	Name             string     `json:"name"`
-	IsSuccessPayment bool       `json:"is_success_payment"`
-	PaymentDate      *time.Time `json:"payment_date"`
+	ID                uuid.UUID  `json:"id"`
+	Name              string     `json:"name"`
+	IsSuccessPayment  bool       `json:"is_success_payment"`
+	PaymentDate       *time.Time `json:"payment_date"`
+	PaymentByID       string     `json:"payment_by_id"`
+	PaymentByFullName string     `json:"payment_by_full_name"`
 }

@@ -1,10 +1,9 @@
 package postgresql
 
 import (
-	"fmt"
-
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/transaction/dto"
+	"modular-monolithic/security/middleware"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
@@ -49,6 +48,7 @@ func (r transactionPostgre) Select() (resp []model.Transaction, merr merror.Erro
 		var transaction model.Transaction
 		if err := rows.StructScan(&transaction); err != nil {
 			return nil, merror.Error{
+				Code:  500,
 				Error: err,
 			}
 		}
@@ -96,6 +96,7 @@ func (r transactionPostgre) Insert(data dto.CreateTransactionRequest) (merr merr
 	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, INSERT_TRANSACTION, id, data.Name)
 	if row == nil {
 		return merror.Error{
+			Code:  500,
 			Error: row.Err(),
 		}
 	}
@@ -104,9 +105,14 @@ func (r transactionPostgre) Insert(data dto.CreateTransactionRequest) (merr merr
 }
 
 func (r transactionPostgre) Update(data dto.UpdateTransactionRequest, id string) (merr merror.Error) {
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_TRANSACTION, id, data.Name)
+	// MAIN VARIABLE
+	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	authUser := auth.User
+
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_TRANSACTION, id, data.Name, authUser.ID, authUser.FullName)
 	if row == nil {
 		return merror.Error{
+			Code:  500,
 			Error: row.Err(),
 		}
 	}
@@ -115,13 +121,15 @@ func (r transactionPostgre) Update(data dto.UpdateTransactionRequest, id string)
 }
 
 func (r transactionPostgre) Destroy(id string) (merr merror.Error) {
-	row, _ := r.Carrier.Library.Sqlx.Exec(DELETE_TRANSACTION, id)
+	// MAIN VARIABLE
+	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	authUser := auth.User
 
-	rowInt, _ := row.RowsAffected()
-	if rowInt == 0 {
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_TRANSACTION, id, authUser.ID, authUser.FullName)
+	if row == nil {
 		return merror.Error{
-			Code:  404,
-			Error: fmt.Errorf("No transaction found with ID %v to delete", id),
+			Code:  500,
+			Error: row.Err(),
 		}
 	}
 
@@ -129,7 +137,11 @@ func (r transactionPostgre) Destroy(id string) (merr merror.Error) {
 }
 
 func (r transactionPostgre) Payment(id string) (merr merror.Error) {
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_TRANSACTION_PAYMENT, id, true)
+	// MAIN VARIABLE
+	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	authUser := auth.User
+
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_TRANSACTION_PAYMENT, id, authUser.ID, authUser.FullName, true)
 	if row == nil {
 		return merror.Error{
 			Error: row.Err(),

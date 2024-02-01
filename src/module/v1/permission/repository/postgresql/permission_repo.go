@@ -1,10 +1,9 @@
 package postgresql
 
 import (
-	"fmt"
-
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/permission/dto"
+	"modular-monolithic/security/middleware"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
@@ -34,6 +33,7 @@ func (r permissionPostgre) Select() (resp []model.Permission, merr merror.Error)
 	rows, err := r.Carrier.Library.Sqlx.Queryx(SELECT_PERMISSION)
 	if err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -45,6 +45,7 @@ func (r permissionPostgre) Select() (resp []model.Permission, merr merror.Error)
 		var permission model.Permission
 		if err := rows.StructScan(&permission); err != nil {
 			return nil, merror.Error{
+				Code:  500,
 				Error: err,
 			}
 		}
@@ -53,6 +54,7 @@ func (r permissionPostgre) Select() (resp []model.Permission, merr merror.Error)
 
 	if err := rows.Err(); err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -64,6 +66,7 @@ func (r permissionPostgre) SelectByID(id string) (resp *model.Permission, merr m
 	row, err := r.Carrier.Library.Sqlx.Queryx(SELECT_PERMISSION_BY_ID, id)
 	if err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -74,6 +77,7 @@ func (r permissionPostgre) SelectByID(id string) (resp *model.Permission, merr m
 	for row.Next() {
 		if err := row.StructScan(&role); err != nil {
 			return nil, merror.Error{
+				Code:  500,
 				Error: err,
 			}
 		}
@@ -89,6 +93,7 @@ func (r permissionPostgre) Insert(data dto.CreatePermissionRequest) (merr merror
 	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, INSERT_PERMISSION, id, data.Name)
 	if row == nil {
 		return merror.Error{
+			Code:  500,
 			Error: row.Err(),
 		}
 	}
@@ -100,6 +105,7 @@ func (r permissionPostgre) Update(data dto.UpdatePermissionRequest, id string) (
 	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_PERMISSION, id, data.Name)
 	if row == nil {
 		return merror.Error{
+			Code:  500,
 			Error: row.Err(),
 		}
 	}
@@ -108,12 +114,15 @@ func (r permissionPostgre) Update(data dto.UpdatePermissionRequest, id string) (
 }
 
 func (r permissionPostgre) Destroy(id string) (merr merror.Error) {
-	row, _ := r.Carrier.Library.Sqlx.Exec(DELETE_PERMISSION, id)
+	// MAIN VARIABLE
+	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	authUser := auth.User
 
-	rowInt, _ := row.RowsAffected()
-	if rowInt == 0 {
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_PERMISSION, id, authUser.ID, authUser.FullName)
+	if row == nil {
 		return merror.Error{
-			Error: fmt.Errorf("No permission found with ID %v to delete", id),
+			Code:  500,
+			Error: row.Err(),
 		}
 	}
 

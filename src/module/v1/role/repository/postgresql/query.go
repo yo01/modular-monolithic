@@ -2,11 +2,13 @@ package postgresql
 
 const (
 	SELECT_ROLE = `
-		SELECT * FROM "role" u
+		SELECT * FROM "role" r
+		WHERE r.deleted_at IS NULL
 	`
 
 	SELECT_ROLE_BY_ID = `
-		SELECT * FROM "role" u WHERE u.id = $1
+		SELECT * FROM "role" r WHERE r.id = $1
+		WHERE r.deleted_at IS NULL
 	`
 
 	INSERT_ROLE = `
@@ -18,12 +20,18 @@ const (
 
 	UPDATE_ROLE = `
 		UPDATE "role"
-			SET ("name", "updated_at") = ($2, NOW())
+			SET ("name", "updated_at", "updated_by_id", "updated_by_full_name") = ($2, NOW(), $3, $4)
 		WHERE id = $1
 	`
 
-	DELETE_ROLE = `
+	HARD_DELETE_ROLE = `
 		DELETE FROM "role"
 		WHERE id = $1;
+	`
+
+	SOFT_DELETE_ROLE = `
+		UPDATE "role"
+			SET ("updated_at", "updated_by_id", "updated_by_full_name", "deleted_at", "deleted_by_id", "deleted_by_full_name") = (NOW(), $2, $3, NOW(), $2, $3)
+		WHERE id = $1
 	`
 )

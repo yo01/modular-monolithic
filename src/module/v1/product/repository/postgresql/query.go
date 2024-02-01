@@ -2,11 +2,13 @@ package postgresql
 
 const (
 	SELECT_PRODUCT = `
-		SELECT * FROM "product" u
+		SELECT * FROM "product" p
+		WHERE p.deleted_at IS NULL
 	`
 
 	SELECT_PRODUCT_BY_ID = `
-		SELECT * FROM "product" u WHERE u.id = $1
+		SELECT * FROM "product" p WHERE p.id = $1
+		WHERE p.deleted_at IS NULL
 	`
 
 	INSERT_PRODUCT = `
@@ -18,12 +20,18 @@ const (
 
 	UPDATE_PRODUCT = `
 		UPDATE "product"
-			SET ("name", "updated_at") = ($2, NOW())
+			SET ("name", "updated_at", "updated_by_id", "updated_by_full_name") = ($2, NOW(), $3, $4)
 		WHERE id = $1
 	`
 
-	DELETE_PRODUCT = `
+	HARD_DELETE_PRODUCT = `
 		DELETE FROM "product"
 		WHERE id = $1;
+	`
+
+	SOFT_DELETE_PRODUCT = `
+		UPDATE "product"
+			SET ("updated_at", "updated_by_id", "updated_by_full_name", "deleted_at", "deleted_by_id", "deleted_by_full_name") = (NOW(), $2, $3, NOW(), $2, $3)
+		WHERE id = $1
 	`
 )

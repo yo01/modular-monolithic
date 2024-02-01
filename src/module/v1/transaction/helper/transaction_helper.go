@@ -33,6 +33,8 @@ func PrepareToDetailTransactionResponse(data *model.Transaction) (resp *dto.Tran
 	resp.Name = data.Name
 	resp.IsSuccessPayment = utils.NullBoolToBool(data.IsSuccessPayment)
 	resp.PaymentDate = data.PaymentDate
+	resp.PaymentByID = data.PaymentByID
+	resp.PaymentByFullName = data.PaymentByFullName
 
 	return
 }

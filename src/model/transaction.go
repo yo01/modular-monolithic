@@ -9,11 +9,13 @@ import (
 
 // Init Table
 type Transaction struct {
-	ID               uuid.UUID    `db:"id"`
-	Name             string       `db:"name"`
-	IsSuccessPayment sql.NullBool `db:"is_success_payment"`
-	CreatedAt        time.Time    `db:"created_at"`
-	UpdatedAt        *time.Time   `db:"updated_at"`
-	PaymentDate      *time.Time   `db:"payment_date"`
-	DeletedAt        *time.Time   `db:"deleted_at"`
+	ID                uuid.UUID    `db:"id"`
+	Name              string       `db:"name"`
+	PaymentByID       string       `db:"payment_by_id"`
+	PaymentByFullName string       `db:"payment_by_full_name"`
+	IsSuccessPayment  sql.NullBool `db:"is_success_payment"`
+	CreatedAt         time.Time    `db:"created_at"`
+	UpdatedAt         *time.Time   `db:"updated_at"`
+	PaymentDate       *time.Time   `db:"payment_date"`
+	DeletedAt         *time.Time   `db:"deleted_at"`
 }

@@ -1,10 +1,9 @@
 package postgresql
 
 import (
-	"fmt"
-
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/menu/dto"
+	"modular-monolithic/security/middleware"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
@@ -34,6 +33,7 @@ func (r menuPostgre) Select() (resp []model.Menu, merr merror.Error) {
 	rows, err := r.Carrier.Library.Sqlx.Queryx(SELECT_MENU)
 	if err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -45,6 +45,7 @@ func (r menuPostgre) Select() (resp []model.Menu, merr merror.Error) {
 		var menu model.Menu
 		if err := rows.StructScan(&menu); err != nil {
 			return nil, merror.Error{
+				Code:  500,
 				Error: err,
 			}
 		}
@@ -64,6 +65,7 @@ func (r menuPostgre) SelectByID(id string) (resp *model.Menu, merr merror.Error)
 	row, err := r.Carrier.Library.Sqlx.Queryx(SELECT_MENU_BY_ID, id)
 	if err != nil {
 		return nil, merror.Error{
+			Code:  500,
 			Error: err,
 		}
 	}
@@ -74,6 +76,7 @@ func (r menuPostgre) SelectByID(id string) (resp *model.Menu, merr merror.Error)
 	for row.Next() {
 		if err := row.StructScan(&menu); err != nil {
 			return nil, merror.Error{
+				Code:  500,
 				Error: err,
 			}
 		}
@@ -89,6 +92,7 @@ func (r menuPostgre) Insert(data dto.CreateMenuRequest) (merr merror.Error) {
 	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, INSERT_MENU, id, data.Name)
 	if row == nil {
 		return merror.Error{
+			Code:  500,
 			Error: row.Err(),
 		}
 	}
@@ -97,9 +101,14 @@ func (r menuPostgre) Insert(data dto.CreateMenuRequest) (merr merror.Error) {
 }
 
 func (r menuPostgre) Update(data dto.UpdateMenuRequest, id string) (merr merror.Error) {
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_MENU, id, data.Name)
+	// MAIN VARIABLE
+	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	authUser := auth.User
+
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_MENU, id, data.Name, authUser.ID, authUser.FullName)
 	if row == nil {
 		return merror.Error{
+			Code:  500,
 			Error: row.Err(),
 		}
 	}
@@ -108,12 +117,15 @@ func (r menuPostgre) Update(data dto.UpdateMenuRequest, id string) (merr merror.
 }
 
 func (r menuPostgre) Destroy(id string) (merr merror.Error) {
-	row, _ := r.Carrier.Library.Sqlx.Exec(DELETE_MENU, id)
+	// MAIN VARIABLE
+	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	authUser := auth.User
 
-	rowInt, _ := row.RowsAffected()
-	if rowInt == 0 {
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_MENU, id, authUser.ID, authUser.FullName)
+	if row == nil {
 		return merror.Error{
-			Error: fmt.Errorf("No menu found with ID %v to delete", id),
+			Code:  500,
+			Error: row.Err(),
 		}
 	}
 
