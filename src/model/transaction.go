@@ -18,4 +18,7 @@ type Transaction struct {
 	UpdatedAt         *time.Time   `db:"updated_at"`
 	PaymentDate       *time.Time   `db:"payment_date"`
 	DeletedAt         *time.Time   `db:"deleted_at"`
+	CreatedByID       uuid.UUID    `db:"created_by_id"`
+	UpdatedByID       uuid.UUID    `db:"updated_by_id"`
+	DeletedByID       uuid.UUID    `db:"deleted_by_id"`
 }

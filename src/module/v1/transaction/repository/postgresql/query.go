@@ -20,7 +20,7 @@ const (
 
 	UPDATE_TRANSACTION = `
 		UPDATE "transaction"
-			SET ("name", "updated_at", "updated_by_id", "updated_by_full_name") = ($2, NOW(), $3, $4)
+			SET ("name", "updated_at", "updated_by_id") = ($2, NOW(), $3)
 		WHERE id = $1
 	`
 
@@ -31,14 +31,14 @@ const (
 
 	SOFT_DELETE_TRANSACTION = `
 		UPDATE "transaction"
-			SET ("updated_at", "updated_by_id", "updated_by_full_name", "deleted_at", "deleted_by_id", "deleted_by_full_name") = (NOW(), $2, $3, NOW(), $2, $3)
+			SET ("updated_at", "updated_by_id", "deleted_at", "deleted_by_id") = (NOW(), $2, NOW(), $2)
 		WHERE id = $1
 	`
 
 	// ADDITIONAL
 	UPDATE_TRANSACTION_PAYMENT = `
 		UPDATE "transaction"
-			SET ("is_success_payment", "payment_date", "payment_by_id", "payment_by_full_name", "updated_at", "updated_by_id", "updated_by_full_name") = ($2, $3, $4, NOW(), NOW(), $3, $4)
+			SET ("is_success_payment", "payment_date", "updated_at", "updated_by_id") = ($2, NOW(), NOW(), $3)
 		WHERE id = $1
 	`
 )

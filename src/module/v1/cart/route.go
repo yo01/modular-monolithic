@@ -10,8 +10,9 @@ import (
 // InitRoutes for the module
 func InitRoutes(c HandlerConfig) {
 	CartHandler := handler.CartHandler{
-		Carrier:     c.Carrier,
-		CartService: c.CartService,
+		Carrier:         c.Carrier,
+		CartService:     c.CartService,
+		CartItemService: c.CartItemService,
 	}
 
 	// CART ROUTES WITH MIDDLEWARE

@@ -7,15 +7,18 @@ import (
 )
 
 type CartRepository struct {
-	Carrier     *mcarrier.Carrier
-	CartPostgre postgresql.ICartPostgre
+	Carrier         *mcarrier.Carrier
+	CartPostgre     postgresql.ICartPostgre
+	CartItemPostgre postgresql.ICartItemPostgre
 }
 
 func NewRepository(carrier *mcarrier.Carrier) CartRepository {
 	cartPostgre := postgresql.NewCartPostgre(carrier)
+	cartItemPostgre := postgresql.NewCartItemPostgre(carrier)
 
 	return CartRepository{
-		Carrier:     carrier,
-		CartPostgre: cartPostgre,
+		Carrier:         carrier,
+		CartPostgre:     cartPostgre,
+		CartItemPostgre: cartItemPostgre,
 	}
 }

@@ -104,7 +104,7 @@ func (r productPostgre) Update(data dto.UpdateProductRequest, id string) (merr m
 	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
 	authUser := auth.User
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_PRODUCT, id, data.Name, authUser.ID, authUser.FullName)
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_PRODUCT, id, data.Name, authUser.ID)
 	if row == nil {
 		return merror.Error{
 			Code:  500,
@@ -120,7 +120,7 @@ func (r productPostgre) Destroy(id string) (merr merror.Error) {
 	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
 	authUser := auth.User
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_PRODUCT, id, authUser.ID, authUser.FullName)
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_PRODUCT, id, authUser.ID)
 	if row == nil {
 		return merror.Error{
 			Code:  500,

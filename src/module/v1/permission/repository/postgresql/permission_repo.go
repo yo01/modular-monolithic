@@ -102,7 +102,11 @@ func (r permissionPostgre) Insert(data dto.CreatePermissionRequest) (merr merror
 }
 
 func (r permissionPostgre) Update(data dto.UpdatePermissionRequest, id string) (merr merror.Error) {
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_PERMISSION, id, data.Name)
+	// MAIN VARIABLE
+	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	authUser := auth.User
+
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_PERMISSION, id, data.Name, authUser.ID)
 	if row == nil {
 		return merror.Error{
 			Code:  500,
@@ -118,7 +122,7 @@ func (r permissionPostgre) Destroy(id string) (merr merror.Error) {
 	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
 	authUser := auth.User
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_PERMISSION, id, authUser.ID, authUser.FullName)
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_PERMISSION, id, authUser.ID)
 	if row == nil {
 		return merror.Error{
 			Code:  500,

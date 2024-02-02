@@ -102,7 +102,11 @@ func (r rolePostgre) Insert(data dto.CreateRoleRequest) (merr merror.Error) {
 }
 
 func (r rolePostgre) Update(data dto.UpdateRoleRequest, id string) (merr merror.Error) {
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_ROLE, id, data.Name)
+	// MAIN VARIABLE
+	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	authUser := auth.User
+
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_ROLE, id, data.Name, authUser.ID)
 	if row == nil {
 		return merror.Error{
 			Code:  500,
@@ -118,7 +122,7 @@ func (r rolePostgre) Destroy(id string) (merr merror.Error) {
 	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
 	authUser := auth.User
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_ROLE, id, authUser.ID, authUser.FullName)
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_ROLE, id, authUser.ID)
 	if row == nil {
 		return merror.Error{
 			Code:  500,

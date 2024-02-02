@@ -105,7 +105,7 @@ func (r menuPostgre) Update(data dto.UpdateMenuRequest, id string) (merr merror.
 	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
 	authUser := auth.User
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_MENU, id, data.Name, authUser.ID, authUser.FullName)
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_MENU, id, data.Name, authUser.ID)
 	if row == nil {
 		return merror.Error{
 			Code:  500,
@@ -121,7 +121,7 @@ func (r menuPostgre) Destroy(id string) (merr merror.Error) {
 	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
 	authUser := auth.User
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_MENU, id, authUser.ID, authUser.FullName)
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_MENU, id, authUser.ID)
 	if row == nil {
 		return merror.Error{
 			Code:  500,

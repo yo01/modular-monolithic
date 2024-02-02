@@ -2,8 +2,10 @@ package utils
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -22,4 +24,14 @@ func NullBoolToBool(nb sql.NullBool) bool {
 
 	// Decide on a default value when the value is NULL
 	return false // You can choose any default value
+}
+
+func ParseStringToUUID(value string) (resp uuid.UUID) {
+	resp, err := uuid.Parse(value)
+	if err != nil {
+		fmt.Println("Error parsing UUID:", err)
+		return
+	}
+
+	return
 }

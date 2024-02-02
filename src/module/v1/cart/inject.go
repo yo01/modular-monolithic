@@ -5,24 +5,28 @@ import (
 	cartService "modular-monolithic/module/v1/cart/service"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
+
 	"github.com/gorilla/mux"
 )
 
 type HandlerConfig struct {
-	R           *mux.Router
-	Carrier     *mcarrier.Carrier
-	CartService cartService.ICartService
+	R               *mux.Router
+	Carrier         *mcarrier.Carrier
+	CartService     cartService.ICartService
+	CartItemService cartService.ICartItemService
 }
 
 // Inject Dependencies
 func Inject(appConfig app.AppConfig) {
 	// init service
 	cartSvc := cartService.NewCartService(appConfig.Carrier)
+	cartItemSvc := cartService.NewCartItemService(appConfig.Carrier)
 
 	// init handler
 	InitRoutes(HandlerConfig{
-		Carrier:     appConfig.Carrier,
-		R:           appConfig.Router,
-		CartService: cartSvc,
+		Carrier:         appConfig.Carrier,
+		R:               appConfig.Router,
+		CartService:     cartSvc,
+		CartItemService: cartItemSvc,
 	})
 }

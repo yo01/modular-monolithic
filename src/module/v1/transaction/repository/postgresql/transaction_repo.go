@@ -109,7 +109,7 @@ func (r transactionPostgre) Update(data dto.UpdateTransactionRequest, id string)
 	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
 	authUser := auth.User
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_TRANSACTION, id, data.Name, authUser.ID, authUser.FullName)
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_TRANSACTION, id, data.Name, authUser.ID)
 	if row == nil {
 		return merror.Error{
 			Code:  500,
@@ -125,7 +125,7 @@ func (r transactionPostgre) Destroy(id string) (merr merror.Error) {
 	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
 	authUser := auth.User
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_TRANSACTION, id, authUser.ID, authUser.FullName)
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_TRANSACTION, id, authUser.ID)
 	if row == nil {
 		return merror.Error{
 			Code:  500,
@@ -141,7 +141,7 @@ func (r transactionPostgre) Payment(id string) (merr merror.Error) {
 	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
 	authUser := auth.User
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_TRANSACTION_PAYMENT, id, authUser.ID, authUser.FullName, true)
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_TRANSACTION_PAYMENT, id, authUser.ID, true)
 	if row == nil {
 		return merror.Error{
 			Error: row.Err(),

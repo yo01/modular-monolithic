@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"modular-monolithic/module/v1/cart/dto"
@@ -8,13 +9,17 @@ import (
 	"modular-monolithic/utils"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
+	"git.motiolabs.com/library/motiolibs/merror"
 	"git.motiolabs.com/library/motiolibs/mhttp"
 	"git.motiolabs.com/library/motiolibs/mresponse"
+
+	"github.com/google/uuid"
 )
 
 type CartHandler struct {
-	Carrier     *mcarrier.Carrier
-	CartService cartService.ICartService
+	Carrier         *mcarrier.Carrier
+	CartService     cartService.ICartService
+	CartItemService cartService.ICartItemService
 }
 
 func (h *CartHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -44,6 +49,12 @@ func (h *CartHandler) Detail(w http.ResponseWriter, r *http.Request) {
 	if merr.Error != nil {
 		mresponse.Failed(w, merr)
 		return
+	} else if resp.ID == uuid.Nil {
+		mresponse.Failed(w, merror.Error{
+			Code:  404,
+			Error: fmt.Errorf("cart with id %v is not found", ID),
+		})
+		return
 	}
 
 	// Return Response
@@ -66,10 +77,25 @@ func (h *CartHandler) Create(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr = h.CartService.Save(req)
+	resp, merr := h.CartService.Save(req)
 	if merr.Error != nil {
 		mresponse.Failed(w, merr)
 		return
+	}
+
+	// CART ITEM RELATION (NEED REFACTOR)
+	for _, productID := range req.ProductID {
+		// TEMP STRUCT
+		cartItemData := dto.CreateCartItemRequest{
+			CartID:    resp.ID.String(),
+			ProductID: productID,
+		}
+
+		merr = h.CartItemService.Save(cartItemData)
+		if merr.Error != nil {
+			mresponse.Failed(w, merr)
+			return
+		}
 	}
 
 	// Return Response
@@ -101,6 +127,18 @@ func (h *CartHandler) Edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TEMP STRUCT
+	cartItemData := dto.UpdateCartItemRequest{
+		ProductID: req.ProductID,
+	}
+
+	// UPDATE CART ITEM
+	merr = h.CartItemService.Edit(cartItemData, req.CartItemID, ID)
+	if merr.Error != nil {
+		mresponse.Failed(w, merr)
+		return
+	}
+
 	// Return Response
 	mresponse.Success(w, "Success", http.StatusOK, true)
 }
@@ -114,6 +152,13 @@ func (h *CartHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	// Init Service
 	merr := h.CartService.Delete(ID)
+	if merr.Error != nil {
+		mresponse.Failed(w, merr)
+		return
+	}
+
+	// Init Service
+	merr = h.CartItemService.Delete(ID)
 	if merr.Error != nil {
 		mresponse.Failed(w, merr)
 		return
