@@ -20,14 +20,11 @@ type PermissionHandler struct {
 }
 
 func (h *PermissionHandler) List(w http.ResponseWriter, r *http.Request) {
-	// MAIN VARIABLE
-	pagination := utils.GeneratePaginationFromRequest(r)
-
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	resp, merr := h.PermissionService.List(&pagination)
+	resp, merr := h.PermissionService.List()
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)

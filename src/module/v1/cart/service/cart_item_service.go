@@ -17,7 +17,7 @@ import (
 )
 
 type ICartItemService interface {
-	List(pagination *model.PageRequest) (resp []dto.CartItemResponse, merr merror.Error)
+	List(pageRequest *model.PageRequest) (resp []dto.CartItemResponse, merr merror.Error)
 	Detail(id string) (resp *dto.CartItemResponse, merr merror.Error)
 	Save(req dto.CreateCartItemRequest) (merr merror.Error)
 	Edit(req dto.UpdateCartItemRequest, id, cartID string) (merr merror.Error)
@@ -38,8 +38,8 @@ func NewCartItemService(carrier *mcarrier.Carrier) ICartItemService {
 	}
 }
 
-func (s *CartItemService) List(pagination *model.PageRequest) (resp []dto.CartItemResponse, merr merror.Error) {
-	fetch, err := s.CartItemRepository.CartItemPostgre.Select(pagination)
+func (s *CartItemService) List(pageRequest *model.PageRequest) (resp []dto.CartItemResponse, merr merror.Error) {
+	fetch, err := s.CartItemRepository.CartItemPostgre.Select(pageRequest)
 	if err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err

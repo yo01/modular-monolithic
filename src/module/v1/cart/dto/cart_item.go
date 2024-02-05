@@ -7,12 +7,12 @@ import (
 )
 
 type CartItem struct {
+	UpdatedAt *time.Time
+	DeletedAt *time.Time
+	CreatedAt time.Time
 	ID        uuid.UUID
 	ProductID uuid.UUID
 	UserID    uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt *time.Time
-	DeletedAt *time.Time
 }
 
 // Request

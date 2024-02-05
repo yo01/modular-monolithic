@@ -9,12 +9,12 @@ import (
 )
 
 type Login struct {
-	ID        uuid.UUID
-	Email     string
-	Password  string
-	CreatedAt time.Time
 	UpdatedAt *time.Time
 	DeletedAt *time.Time
+	CreatedAt time.Time
+	Email     string
+	Password  string
+	ID        uuid.UUID
 }
 
 // Request
@@ -25,10 +25,10 @@ type LoginRequest struct {
 
 // Response
 type LoginResponse struct {
-	ID           uuid.UUID         `json:"id"`
+	Role         *dto.RoleResponse `json:"role"`
 	FullName     string            `json:"full_name"`
 	Email        string            `json:"email"`
-	Role         *dto.RoleResponse `json:"role"`
 	AccessToken  string            `json:"access_token"`
 	RefreshToken string            `json:"refresh_token"`
+	ID           uuid.UUID         `json:"id"`
 }

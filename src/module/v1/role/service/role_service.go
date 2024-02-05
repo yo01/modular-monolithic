@@ -10,7 +10,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"modular-monolithic/model"
 	"modular-monolithic/module/v1/role/dto"
 	"modular-monolithic/module/v1/role/helper"
 	roleRepository "modular-monolithic/module/v1/role/repository"
@@ -18,7 +17,7 @@ import (
 )
 
 type IRoleService interface {
-	List(pagination *model.PageRequest) (resp []dto.RoleResponse, merr merror.Error)
+	List() (resp []dto.RoleResponse, merr merror.Error)
 	Detail(id string) (resp *dto.RoleResponse, merr merror.Error)
 	Save(req dto.CreateRoleRequest) (merr merror.Error)
 	Edit(req dto.UpdateRoleRequest, id string) (merr merror.Error)
@@ -39,14 +38,14 @@ func NewRoleService(carrier *mcarrier.Carrier) IRoleService {
 	}
 }
 
-func (s *RoleService) List(pagination *model.PageRequest) (resp []dto.RoleResponse, merr merror.Error) {
+func (s *RoleService) List() (resp []dto.RoleResponse, merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateRoleAccess(s.Carrier); err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err
 	}
 
-	fetch, err := s.RoleRepository.RolePostgre.Select(pagination)
+	fetch, err := s.RoleRepository.RolePostgre.Select()
 	if err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err

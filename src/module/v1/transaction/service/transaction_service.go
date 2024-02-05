@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"modular-monolithic/config"
-	"modular-monolithic/model"
 	"modular-monolithic/module/v1/transaction/dto"
 	"modular-monolithic/module/v1/transaction/helper"
 	transactionRepository "modular-monolithic/module/v1/transaction/repository"
@@ -18,7 +17,7 @@ import (
 )
 
 type ITransactionService interface {
-	List(pagination *model.PageRequest) (resp []dto.TransactionResponse, merr merror.Error)
+	List() (resp []dto.TransactionResponse, merr merror.Error)
 	Detail(id string) (resp *dto.TransactionResponse, merr merror.Error)
 	Save(req dto.CreateTransactionRequest) (merr merror.Error)
 	Edit(req dto.UpdateTransactionRequest, id string) (merr merror.Error)
@@ -42,8 +41,8 @@ func NewTransactionService(carrier *mcarrier.Carrier) ITransactionService {
 	}
 }
 
-func (s *TransactionService) List(pagination *model.PageRequest) (resp []dto.TransactionResponse, merr merror.Error) {
-	fetch, err := s.TransactionRepository.TransactionPostgre.Select(pagination)
+func (s *TransactionService) List() (resp []dto.TransactionResponse, merr merror.Error) {
+	fetch, err := s.TransactionRepository.TransactionPostgre.Select()
 	if err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err

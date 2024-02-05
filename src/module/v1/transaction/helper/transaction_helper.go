@@ -2,8 +2,11 @@ package helper
 
 import (
 	"modular-monolithic/model"
+	cartDTO "modular-monolithic/module/v1/cart/dto"
 	"modular-monolithic/module/v1/transaction/dto"
 	"modular-monolithic/utils"
+
+	"github.com/google/uuid"
 )
 
 func PrepareToTransactionsResponse(data []model.Transaction) (resp []dto.TransactionResponse) {
@@ -16,7 +19,11 @@ func PrepareToTransactionsResponse(data []model.Transaction) (resp []dto.Transac
 
 		// SET DATA
 		newDetail.ID = detail.ID
-		newDetail.CartID = detail.CartID
+		if detail.CartID != uuid.Nil {
+			newDetail.Cart = new(cartDTO.CartResponse)
+			newDetail.Cart.ID = detail.CartID
+			newDetail.Cart.UserID = detail.CartUserID
+		}
 		newDetail.IsSuccessPayment = utils.NullBoolToBool(detail.IsSuccessPayment)
 		newDetail.PaymentDate = detail.PaymentDate
 
@@ -30,7 +37,11 @@ func PrepareToDetailTransactionResponse(data *model.Transaction) (resp *dto.Tran
 	// CONVERT TO RESPONSE STRUCT
 	resp = new(dto.TransactionResponse)
 	resp.ID = data.ID
-	resp.CartID = data.CartID
+	if data.CartID != uuid.Nil {
+		resp.Cart = new(cartDTO.CartResponse)
+		resp.Cart.ID = data.CartID
+		resp.Cart.UserID = data.CartUserID
+	}
 	resp.IsSuccessPayment = utils.NullBoolToBool(data.IsSuccessPayment)
 	resp.PaymentDate = data.PaymentDate
 	resp.PaymentByID = data.PaymentByID

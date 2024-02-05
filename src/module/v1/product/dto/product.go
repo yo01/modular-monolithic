@@ -7,11 +7,11 @@ import (
 )
 
 type Product struct {
-	ID        uuid.UUID
-	Name      string
-	CreatedAt time.Time
 	UpdatedAt *time.Time
 	DeletedAt *time.Time
+	CreatedAt time.Time
+	Name      string
+	ID        uuid.UUID
 }
 
 // Request
@@ -25,6 +25,6 @@ type UpdateProductRequest struct {
 
 // Response
 type ProductResponse struct {
-	ID   uuid.UUID `json:"id"`
 	Name string    `json:"name"`
+	ID   uuid.UUID `json:"id"`
 }

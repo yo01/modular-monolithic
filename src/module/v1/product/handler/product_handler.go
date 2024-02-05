@@ -20,14 +20,11 @@ type ProductHandler struct {
 }
 
 func (h *ProductHandler) List(w http.ResponseWriter, r *http.Request) {
-	// MAIN VARIABLE
-	pagination := utils.GeneratePaginationFromRequest(r)
-
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	resp, merr := h.ProductService.List(&pagination)
+	resp, merr := h.ProductService.List()
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)

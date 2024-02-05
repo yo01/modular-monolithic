@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 
-	"modular-monolithic/model"
 	"modular-monolithic/module/v1/user/dto"
 	"modular-monolithic/module/v1/user/helper"
 	userRepository "modular-monolithic/module/v1/user/repository"
@@ -17,7 +16,7 @@ import (
 )
 
 type IUserService interface {
-	List(pagination *model.PageRequest) (resp []dto.UserResponse, merr merror.Error)
+	List() (resp []dto.UserResponse, merr merror.Error)
 	Detail(id string) (resp *dto.UserResponse, merr merror.Error)
 	Save(req dto.CreateUserRequest) (merr merror.Error)
 	Edit(req dto.UpdateUserRequest, id string) (merr merror.Error)
@@ -38,8 +37,8 @@ func NewUserService(carrier *mcarrier.Carrier) IUserService {
 	}
 }
 
-func (s *UserService) List(pagination *model.PageRequest) (resp []dto.UserResponse, merr merror.Error) {
-	fetch, err := s.UserRepository.UserPostgre.Select(pagination)
+func (s *UserService) List() (resp []dto.UserResponse, merr merror.Error) {
+	fetch, err := s.UserRepository.UserPostgre.Select()
 	if err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err

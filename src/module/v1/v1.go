@@ -2,6 +2,7 @@ package v1
 
 import (
 	"modular-monolithic/app"
+	"modular-monolithic/context"
 	"modular-monolithic/module/v1/auth"
 	"modular-monolithic/module/v1/cart"
 	"modular-monolithic/module/v1/menu"
@@ -15,6 +16,8 @@ import (
 func Inject(appConfig app.AppConfig) {
 	// grouping api/v1
 	appConfig.Router = appConfig.Router.PathPrefix("/api/v1").Subrouter()
+
+	appConfig.Router.Use(context.PageRequestCtx)
 
 	// user module
 	user.Inject(appConfig)

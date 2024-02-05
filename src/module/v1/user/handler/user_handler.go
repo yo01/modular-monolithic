@@ -20,14 +20,11 @@ type UserHandler struct {
 }
 
 func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
-	// MAIN VARIABLE
-	pagination := utils.GeneratePaginationFromRequest(r)
-
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	resp, merr := h.UserService.List(&pagination)
+	resp, merr := h.UserService.List()
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)

@@ -12,16 +12,16 @@ type Auth struct {
 }
 
 type AuthUser struct {
-	ID       uuid.UUID
-	FullName string
 	Role     dto.RoleResponse
+	FullName string
+	ID       uuid.UUID
 }
 
 type Claims struct {
-	Authorized bool      `json:"autorized"`
 	UserID     uuid.UUID `json:"user_id"`
+	RoleID     uuid.UUID `json:"role_id"`
 	Email      string    `json:"email"`
 	FullName   string    `json:"full_name"`
-	RoleID     uuid.UUID `json:"role_id"`
 	RoleName   string    `json:"role_name"`
+	Authorized bool      `json:"autorized"`
 }

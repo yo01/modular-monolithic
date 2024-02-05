@@ -2,13 +2,15 @@ package postgresql
 
 const (
 	SELECT_TRANSACTION = `
-		SELECT * FROM "transaction" t
+		SELECT t.id, t.is_success_payment, t.payment_date, t.created_at, t.deleted_at, cart.id as cart_id, cart.user_id as cart_user_id FROM "transaction" t
+			LEFT JOIN cart ON t.cart_id = cart.id 
 		WHERE t.deleted_at IS NULL
 	`
 
 	SELECT_TRANSACTION_BY_ID = `
-		SELECT * FROM "transaction" t WHERE t.id = $1
-		WHERE t.deleted_at IS NULL
+		SELECT t.id, t.is_success_payment, t.payment_date, t.created_at, t.deleted_at, cart.id as cart_id, cart.user_id as cart_user_id FROM "transaction" t 
+			LEFT JOIN cart ON t.cart_id = cart.id 
+		WHERE t.id = $1 AND t.deleted_at IS NULL
 	`
 
 	INSERT_TRANSACTION = `

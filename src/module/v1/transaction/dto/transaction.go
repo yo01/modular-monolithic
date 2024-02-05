@@ -1,20 +1,21 @@
 package dto
 
 import (
+	"modular-monolithic/module/v1/cart/dto"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type Transaction struct {
-	ID        uuid.UUID
+	UpdatedAt *time.Time
+	DeletedAt *time.Time
+	CreatedAt time.Time
 	Name      string
+	ID        uuid.UUID
 	ProductID uuid.UUID
 	UserID    uuid.UUID
 	CartID    uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt *time.Time
-	DeletedAt *time.Time
 }
 
 // Request
@@ -28,10 +29,10 @@ type UpdateTransactionRequest struct {
 
 // Response
 type TransactionResponse struct {
-	ID               uuid.UUID  `json:"id"`
-	CartID           uuid.UUID  `json:"cart_id"`
-	IsSuccessPayment bool       `json:"is_success_payment"`
-	PaymentDate      *time.Time `json:"payment_date"`
-	PaymentByID      string     `json:"payment_by_id"`
-	InvoiceNumber    string     `json:"invoice_number"`
+	PaymentDate      *time.Time        `json:"payment_date"`
+	PaymentByID      string            `json:"payment_by_id"`
+	InvoiceNumber    string            `json:"invoice_number"`
+	ID               uuid.UUID         `json:"id"`
+	Cart             *dto.CartResponse `json:"cart"`
+	IsSuccessPayment bool              `json:"is_success_payment"`
 }

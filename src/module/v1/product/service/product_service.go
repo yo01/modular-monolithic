@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 
-	"modular-monolithic/model"
 	"modular-monolithic/module/v1/product/dto"
 	"modular-monolithic/module/v1/product/helper"
 	productRepository "modular-monolithic/module/v1/product/repository"
@@ -18,7 +17,7 @@ import (
 )
 
 type IProductService interface {
-	List(pagination *model.PageRequest) (resp []dto.ProductResponse, merr merror.Error)
+	List() (resp []dto.ProductResponse, merr merror.Error)
 	Detail(id string) (resp *dto.ProductResponse, merr merror.Error)
 	Save(req dto.CreateProductRequest) (merr merror.Error)
 	Edit(req dto.UpdateProductRequest, id string) (merr merror.Error)
@@ -39,8 +38,8 @@ func NewProductService(carrier *mcarrier.Carrier) IProductService {
 	}
 }
 
-func (s *ProductService) List(pagination *model.PageRequest) (resp []dto.ProductResponse, merr merror.Error) {
-	fetch, err := s.ProductRepository.ProductPostgre.Select(pagination)
+func (s *ProductService) List() (resp []dto.ProductResponse, merr merror.Error) {
+	fetch, err := s.ProductRepository.ProductPostgre.Select()
 	if err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err

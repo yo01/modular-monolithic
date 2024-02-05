@@ -13,9 +13,9 @@ const (
 
 	INSERT_CART_ITEM = `
 		INSERT INTO "cart_item" 
-			("id", "cart_id", "product_id", "created_at", "updated_at", "created_id", "updated_id")
+			("id", "cart_id", "product_id", "created_at", "updated_at", "created_by_id", "updated_by_id")
 		VALUES
-			($1, $2, $3, NOW(), NOW(), $4, $5)
+			($1, $2, $3, NOW(), NOW(), $4, $4)
 	`
 
 	UPDATE_CART_ITEM = `

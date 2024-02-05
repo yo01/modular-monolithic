@@ -7,12 +7,12 @@ import (
 )
 
 type Cart struct {
+	UpdatedAt *time.Time
+	DeletedAt *time.Time
+	CreatedAt time.Time
 	ID        uuid.UUID
 	ProductID uuid.UUID
 	UserID    uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt *time.Time
-	DeletedAt *time.Time
 }
 
 // Request
@@ -28,14 +28,14 @@ type UpdateCartRequest struct {
 // Response
 type (
 	CartResponse struct {
+		CartItem []CartItemReference `json:"cart_item"`
 		ID       uuid.UUID           `json:"id"`
 		UserID   uuid.UUID           `json:"user_id"`
-		CartItem []CartItemReference `json:"cart_item"`
 	}
 
 	CartItemReference struct {
+		ProductName *string   `json:"product_name"`
 		ID          uuid.UUID `json:"id"`
 		ProductID   uuid.UUID `json:"product_id"`
-		ProductName *string   `json:"product_name"`
 	}
 )

@@ -1,9 +1,6 @@
 package postgresql
 
 import (
-	"fmt"
-	"strings"
-
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/cart/dto"
 	"modular-monolithic/security/middleware"
@@ -17,7 +14,7 @@ import (
 )
 
 type ICartPostgre interface {
-	Select(pagination *model.PageRequest) (resp []model.Cart, merr merror.Error)
+	Select() (resp []model.Cart, merr merror.Error)
 	SelectByID(id string) (resp []model.Cart, merr merror.Error)
 	Insert(data dto.CreateCartRequest) (resp *model.Cart, merr merror.Error)
 	Update(data dto.UpdateCartRequest, id string) (merr merror.Error)
@@ -36,53 +33,15 @@ func NewCartPostgre(carrier *mcarrier.Carrier) cartPostgre {
 	}
 }
 
-func (r cartPostgre) Select(pagination *model.PageRequest) (resp []model.Cart, merr merror.Error) {
+func (r cartPostgre) Select() (resp []model.Cart, merr merror.Error) {
+	// GET DATA FROM CONTEXT MIDDLEWARE
+	pageRequest := r.Carrier.Context.Value(middleware.PageRequestCtxKey).(*model.PageRequest)
+
 	// MAIN VARIABLE
 	sqlQuery := SELECT_CART
-	offset := (pagination.Page - 1) * pagination.PerPage
-
-	for _, filter := range pagination.Filter {
-		// Loop through inner map
-		for key, valueMap := range filter {
-			for operator, value := range valueMap {
-				sqlQuery += fmt.Sprintf(" AND %s %s %s", fmt.Sprintf("c.%v", key), operator, utils.GetSQLValue(operator, value))
-			}
-		}
-	}
-
-	if pagination.Search != "" {
-		// MAIN VARIABLE
-		fields := []string{
-			"c.product_name",
-		}
-
-		if len(fields) == 1 {
-			sqlQuery += fmt.Sprintf("AND %s ILIKE '%%%s%%' ", fields[0], pagination.Search)
-		} else {
-			var conditions []string
-
-			// Add conditions based on non-empty filter criteria
-			for _, field := range fields {
-				condition := fmt.Sprintf("%s %s '%%%s%%'", field, "ILIKE", pagination.Search)
-				conditions = append(conditions, condition)
-			}
-
-			// Combine conditions with OR and wrap in parentheses
-			conditionClause := "(" + strings.Join(conditions, " OR ") + ")"
-
-			sqlQuery += "AND " + conditionClause + " "
-		}
-	}
-
-	if pagination.Sort != "" {
-		sqlQuery += fmt.Sprintf("ORDER BY %v ", fmt.Sprintf("c.%v", pagination.Sort))
-	}
-
-	if pagination.PerPage != 0 {
-		sqlQuery += fmt.Sprintf("LIMIT %v ", pagination.PerPage)
-	}
-
-	sqlQuery += fmt.Sprintf("OFFSET %v ", offset)
+	sqlQuery += utils.BuildQuery(pageRequest, "c", []string{
+		"c.product_name",
+	})
 
 	rows, err := r.Carrier.Library.Sqlx.Queryx(sqlQuery)
 	if err != nil {

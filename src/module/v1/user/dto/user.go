@@ -9,13 +9,13 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID
-	Email     string
-	Password  *string
-	FullName  string
-	CreatedAt time.Time
 	UpdatedAt *time.Time
 	DeletedAt *time.Time
+	CreatedAt time.Time
+	Password  *string
+	Email     string
+	FullName  string
+	ID        uuid.UUID
 }
 
 // Request
@@ -32,8 +32,8 @@ type UpdateUserRequest struct {
 
 // Response
 type UserResponse struct {
-	ID       uuid.UUID         `json:"id"`
+	Role     *dto.RoleResponse `json:"role"`
 	Email    string            `json:"email"`
 	FullName string            `json:"full_name"`
-	Role     *dto.RoleResponse `json:"role"`
+	ID       uuid.UUID         `json:"id"`
 }

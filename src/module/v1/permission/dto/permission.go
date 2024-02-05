@@ -7,12 +7,12 @@ import (
 )
 
 type Permission struct {
-	ID        uuid.UUID
-	Name      string
-	UserID    []uuid.UUID
-	CreatedAt time.Time
 	UpdatedAt *time.Time
 	DeletedAt *time.Time
+	CreatedAt time.Time
+	Name      string
+	UserID    []uuid.UUID
+	ID        uuid.UUID
 }
 
 // Request
@@ -26,6 +26,6 @@ type UpdatePermissionRequest struct {
 
 // Response
 type PermissionResponse struct {
-	ID   uuid.UUID `json:"id"`
 	Name string    `json:"name"`
+	ID   uuid.UUID `json:"id"`
 }

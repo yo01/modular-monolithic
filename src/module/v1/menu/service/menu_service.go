@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 
-	"modular-monolithic/model"
 	"modular-monolithic/module/v1/menu/dto"
 	"modular-monolithic/module/v1/menu/helper"
 	menuRepository "modular-monolithic/module/v1/menu/repository"
@@ -18,7 +17,7 @@ import (
 )
 
 type IMenuService interface {
-	List(pagination *model.PageRequest) (resp []dto.MenuResponse, merr merror.Error)
+	List() (resp []dto.MenuResponse, merr merror.Error)
 	Detail(id string) (resp *dto.MenuResponse, merr merror.Error)
 	Save(req dto.CreateMenuRequest) (merr merror.Error)
 	Edit(req dto.UpdateMenuRequest, id string) (merr merror.Error)
@@ -39,14 +38,14 @@ func NewMenuService(carrier *mcarrier.Carrier) IMenuService {
 	}
 }
 
-func (s *MenuService) List(pagination *model.PageRequest) (resp []dto.MenuResponse, merr merror.Error) {
+func (s *MenuService) List() (resp []dto.MenuResponse, merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateMenuAccess(s.Carrier); err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err
 	}
 
-	fetch, err := s.MenuRepository.MenuPostgre.Select(pagination)
+	fetch, err := s.MenuRepository.MenuPostgre.Select()
 	if err.Error != nil {
 		zap.S().Error(err)
 		return resp, err

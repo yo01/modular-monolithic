@@ -2,7 +2,6 @@ package postgresql
 
 import (
 	"fmt"
-	"strings"
 
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/cart/dto"
@@ -18,7 +17,7 @@ import (
 )
 
 type ICartItemPostgre interface {
-	Select(pagination *model.PageRequest) (resp []model.CartItem, merr merror.Error)
+	Select(pageRequest *model.PageRequest) (resp []model.CartItem, merr merror.Error)
 	SelectByID(id string) (resp *model.CartItem, merr merror.Error)
 	Insert(data dto.CreateCartItemRequest) (merr merror.Error)
 	Update(data dto.UpdateCartItemRequest, id, cartID string) (merr merror.Error)
@@ -35,12 +34,12 @@ func NewCartItemPostgre(carrier *mcarrier.Carrier) cartItemPostgre {
 	}
 }
 
-func (r cartItemPostgre) Select(pagination *model.PageRequest) (resp []model.CartItem, merr merror.Error) {
+func (r cartItemPostgre) Select(pageRequest *model.PageRequest) (resp []model.CartItem, merr merror.Error) {
 	// MAIN VARIABLE
 	sqlQuery := SELECT_CART_ITEM
-	offset := (pagination.Page - 1) * pagination.PerPage
+	offset := (pageRequest.Page - 1) * pageRequest.PerPage
 
-	for _, filter := range pagination.Filter {
+	for _, filter := range pageRequest.Filters {
 		// Loop through inner map
 		for key, valueMap := range filter {
 			for operator, value := range valueMap {
@@ -49,34 +48,19 @@ func (r cartItemPostgre) Select(pagination *model.PageRequest) (resp []model.Car
 		}
 	}
 
-	if pagination.Search != "" {
+	if pageRequest.Search != "" {
 		// MAIN VARIABLE
 		fields := []string{}
 
-		if len(fields) == 1 {
-			sqlQuery += fmt.Sprintf("AND %s ILIKE '%%%s%%' ", fields[0], pagination.Search)
-		} else {
-			var conditions []string
-
-			// Add conditions based on non-empty filter criteria
-			for _, field := range fields {
-				condition := fmt.Sprintf("%s %s '%%%s%%'", field, "ILIKE", pagination.Search)
-				conditions = append(conditions, condition)
-			}
-
-			// Combine conditions with OR and wrap in parentheses
-			conditionClause := "(" + strings.Join(conditions, " OR ") + ")"
-
-			sqlQuery += "AND " + conditionClause + " "
-		}
+		sqlQuery += "AND " + utils.BuildSearchCondition(fields, pageRequest.Search) + " "
 	}
 
-	if pagination.Sort != "" {
-		sqlQuery += fmt.Sprintf("ORDER BY %v ", fmt.Sprintf("c.%v", pagination.Sort))
+	if pageRequest.Sort != "" {
+		sqlQuery += fmt.Sprintf("ORDER BY %v ", fmt.Sprintf("c.%v", pageRequest.Sort))
 	}
 
-	if pagination.PerPage != 0 {
-		sqlQuery += fmt.Sprintf("LIMIT %v ", pagination.PerPage)
+	if pageRequest.PerPage != 0 {
+		sqlQuery += fmt.Sprintf("LIMIT %v ", pageRequest.PerPage)
 	}
 
 	sqlQuery += fmt.Sprintf("OFFSET %v ", offset)
@@ -152,12 +136,11 @@ func (r cartItemPostgre) Insert(data dto.CreateCartItemRequest) (merr merror.Err
 	cartUUID := utils.ParseStringToUUID(data.CartID)
 	productUUID := utils.ParseStringToUUID(data.ProductID)
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, INSERT_CART_ITEM, id, cartUUID, productUUID, authUser.ID)
-	if row == nil {
-		zap.S().Error(row.Err())
+	if _, err := r.Carrier.Library.Sqlx.Queryx(INSERT_CART_ITEM, id, cartUUID, productUUID, authUser.ID); err != nil {
+		zap.S().Error(err)
 		return merror.Error{
 			Code:  500,
-			Error: row.Err(),
+			Error: err,
 		}
 	}
 

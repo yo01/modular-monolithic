@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 
-	"modular-monolithic/model"
 	"modular-monolithic/module/v1/permission/dto"
 	"modular-monolithic/module/v1/permission/helper"
 	permissionRepository "modular-monolithic/module/v1/permission/repository"
@@ -18,7 +17,7 @@ import (
 )
 
 type IPermissionService interface {
-	List(pagination *model.PageRequest) (resp []dto.PermissionResponse, merr merror.Error)
+	List() (resp []dto.PermissionResponse, merr merror.Error)
 	Detail(id string) (resp *dto.PermissionResponse, merr merror.Error)
 	Save(req dto.CreatePermissionRequest) (merr merror.Error)
 	Edit(req dto.UpdatePermissionRequest, id string) (merr merror.Error)
@@ -39,14 +38,14 @@ func NewRoleService(carrier *mcarrier.Carrier) IPermissionService {
 	}
 }
 
-func (s *PermissionService) List(pagination *model.PageRequest) (resp []dto.PermissionResponse, merr merror.Error) {
+func (s *PermissionService) List() (resp []dto.PermissionResponse, merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err
 	}
 
-	fetch, err := s.PermissionRepository.PermissionPostgre.Select(pagination)
+	fetch, err := s.PermissionRepository.PermissionPostgre.Select()
 	if err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err

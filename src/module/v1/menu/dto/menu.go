@@ -7,11 +7,11 @@ import (
 )
 
 type Menu struct {
-	ID        uuid.UUID
-	Name      string
 	CreatedAt time.Time
 	UpdatedAt *time.Time
 	DeletedAt *time.Time
+	Name      string
+	ID        uuid.UUID
 }
 
 // Request
@@ -25,6 +25,6 @@ type UpdateMenuRequest struct {
 
 // Response
 type MenuResponse struct {
-	ID   uuid.UUID `json:"id"`
 	Name string    `json:"name"`
+	ID   uuid.UUID `json:"id"`
 }

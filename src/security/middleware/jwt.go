@@ -21,7 +21,8 @@ type ctxKey struct {
 }
 
 var (
-	AuthUserCtxKey = &ctxKey{"Auth"}
+	AuthUserCtxKey    = &ctxKey{"Auth"}
+	PageRequestCtxKey = &ctxKey{"Page Request"}
 )
 
 var SECRET_KEY = config.Get().JwtKey

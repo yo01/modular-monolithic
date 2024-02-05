@@ -1,7 +1,6 @@
 package service
 
 import (
-	"modular-monolithic/model"
 	"modular-monolithic/module/v1/cart/dto"
 	"modular-monolithic/module/v1/cart/helper"
 	cartRepository "modular-monolithic/module/v1/cart/repository"
@@ -13,7 +12,7 @@ import (
 )
 
 type ICartService interface {
-	List(pagination *model.PageRequest) (resp []dto.CartResponse, merr merror.Error)
+	List() (resp []dto.CartResponse, merr merror.Error)
 	Detail(id string) (resp *dto.CartResponse, merr merror.Error)
 	Save(req dto.CreateCartRequest) (resp *dto.CartResponse, merr merror.Error)
 	Edit(req dto.UpdateCartRequest, id string) (merr merror.Error)
@@ -34,8 +33,8 @@ func NewCartService(carrier *mcarrier.Carrier) ICartService {
 	}
 }
 
-func (s *CartService) List(pagination *model.PageRequest) (resp []dto.CartResponse, merr merror.Error) {
-	fetch, err := s.CartRepository.CartPostgre.Select(pagination)
+func (s *CartService) List() (resp []dto.CartResponse, merr merror.Error) {
+	fetch, err := s.CartRepository.CartPostgre.Select()
 	if err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err
