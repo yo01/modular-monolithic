@@ -2,7 +2,7 @@ package postgresql
 
 const (
 	SELECT_PRODUCT = `
-		SELECT p.id, p.name FROM "product" p
+		SELECT p.id, p.name, p.created_at FROM "product" p
 			LEFT JOIN menu ON p.menu_id = menu.id
 		WHERE p.deleted_at IS NULL
 	`

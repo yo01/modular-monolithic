@@ -10,6 +10,8 @@ import (
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/mhttp"
 	"git.motiolabs.com/library/motiolibs/mresponse"
+
+	"go.uber.org/zap"
 )
 
 type UserHandler struct {
@@ -18,12 +20,16 @@ type UserHandler struct {
 }
 
 func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
+	// MAIN VARIABLE
+	pagination := utils.GeneratePaginationFromRequest(r)
+
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	resp, merr := h.UserService.List()
+	resp, merr := h.UserService.List(&pagination)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -42,6 +48,7 @@ func (h *UserHandler) Detail(w http.ResponseWriter, r *http.Request) {
 	// Init Service
 	resp, merr := h.UserService.Detail(ID)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -58,6 +65,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// Validation
 	merr := mhttp.ValidateRequest(r, &req)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -68,6 +76,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// Init Service
 	merr = h.UserService.Save(req)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -87,6 +96,7 @@ func (h *UserHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	// Validation
 	merr := mhttp.ValidateRequest(r, &req)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -97,6 +107,7 @@ func (h *UserHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	// Init Service
 	merr = h.UserService.Edit(req, ID)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -115,6 +126,7 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Init Service
 	merr := h.UserService.Delete(ID)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}

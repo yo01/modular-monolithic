@@ -3,6 +3,7 @@ package helper
 import (
 	"modular-monolithic/model"
 
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,6 +18,7 @@ func VerifyPassword(hashedPassword, password string) error {
 func BycryptPassword(data *model.User) error {
 	hashedPassword, err := Hash(*data.Password)
 	if err != nil {
+		zap.S().Error(err)
 		return err
 	}
 

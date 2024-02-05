@@ -2,7 +2,7 @@ package postgresql
 
 const (
 	SELECT_USER = `
-		SELECT u.id , u.email , u.password, u.full_name, u.role_id, u.deleted_at, role.name as role_name  FROM "user" u
+		SELECT u.id , u.email , u.password, u.full_name, u.role_id, u.created_at, u.created_at, u.deleted_at, role.name as role_name  FROM "user" u
 			LEFT JOIN role ON u.role_id = role.id
 		WHERE u.deleted_at IS NULL
 	`
@@ -15,9 +15,9 @@ const (
 
 	INSERT_USER = `
 		INSERT INTO "user" 
-			("id", "email", "password", "full_name", "role_id", "created_at", "updated_at")
+			("id", "email", "password", "full_name", "role_id", "created_at", "updated_at", "created_by_id", "updated_by_id")
 		VALUES
-			($1, $2, $3, $4, $5, NOW(), NOW())
+			($1, $2, $3, $4, $5, NOW(), NOW(), $6, $6)
 	`
 
 	UPDATE_USER = `

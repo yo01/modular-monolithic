@@ -13,6 +13,7 @@ import (
 	"git.motiolabs.com/library/motiolibs/merror"
 	"git.motiolabs.com/library/motiolibs/mtoken"
 
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -41,11 +42,13 @@ func (s *AuthService) SignIn(req dto.LoginRequest) (resp *dto.LoginResponse, mer
 	// Get user details by email
 	user, err := s.UserRepository.UserPostgre.SelectByEmail(req.Email)
 	if err.Error != nil {
+		zap.S().Error(err.Error)
 		return nil, err
 	}
 
 	// Verify password
 	if err := helper.VerifyPassword(*user.Password, req.Password); err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		zap.S().Error(err.Error())
 		return nil, merror.Error{
 			Code:  500,
 			Error: err,
@@ -55,6 +58,7 @@ func (s *AuthService) SignIn(req dto.LoginRequest) (resp *dto.LoginResponse, mer
 	// Create tokens
 	accessToken, refreshToken, err := CreateToken(user)
 	if err.Error != nil {
+		zap.S().Error(err.Error)
 		return nil, err
 	}
 
@@ -104,6 +108,7 @@ func CreateToken(user *model.User) (accessToken, refreshToken string, err merror
 	}, claims)
 
 	if err.Error != nil {
+		zap.S().Error(err.Error)
 		return "", "", err
 	}
 

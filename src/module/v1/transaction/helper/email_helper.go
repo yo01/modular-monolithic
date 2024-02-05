@@ -7,6 +7,8 @@ import (
 	"text/template"
 
 	"modular-monolithic/module/v1/transaction/dto"
+
+	"go.uber.org/zap"
 )
 
 func GenerateInvoiceHTML(data dto.Email) (string, error) {
@@ -17,9 +19,9 @@ func GenerateInvoiceHTML(data dto.Email) (string, error) {
 		<title>Invoice</title>
 	</head>
 	<body>
-		<h1>Invoice</h1>
-		<p>Dear 1</p>
-		<p>Amount due: 1</p>
+		<h1>Invoice</h1
+		<p>Dear Yohanes</p>
+		<p>Amount due: Rp. 10.000</p>
 		<p>Thank you for your business!</p>
 	</body>
 	</html>
@@ -27,11 +29,13 @@ func GenerateInvoiceHTML(data dto.Email) (string, error) {
 
 	tmpl, err := template.New("invoice").Parse(invoiceTemplate)
 	if err != nil {
+		zap.S().Error(err)
 		return "", err
 	}
 
 	var tplBuffer bytes.Buffer
 	if err = tmpl.Execute(&tplBuffer, data); err != nil {
+		zap.S().Error(err)
 		return "", err
 	}
 
@@ -49,6 +53,7 @@ func SendEmail(config dto.Email) error {
 		"%s", config.RecipientEmail, config.SubjectEmail, config.BodyEmail)
 
 	if err := smtp.SendMail(config.SMTPServer+":"+fmt.Sprintf("%v", config.SMTPPort), auth, config.SenderEmail, []string{config.RecipientEmail}, []byte(message)); err != nil {
+		zap.S().Error(err)
 		return err
 	}
 

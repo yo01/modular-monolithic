@@ -10,6 +10,8 @@ import (
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/mhttp"
 	"git.motiolabs.com/library/motiolibs/mresponse"
+
+	"go.uber.org/zap"
 )
 
 type AuthHandler struct {
@@ -23,6 +25,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Validate request
 	if merr := mhttp.ValidateRequest(r, &req); merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -33,6 +36,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Invoke service to handle login
 	resp, merr := h.AuthService.SignIn(req)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}

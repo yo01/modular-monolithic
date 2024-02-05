@@ -1,13 +1,14 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"path/filepath"
 	"runtime"
 
 	"git.motiolabs.com/library/motiolibs/merror"
+
+	"go.uber.org/zap"
 
 	"github.com/spf13/viper"
 )
@@ -58,6 +59,7 @@ func load() Config {
 
 	// Read in the configuration file
 	if err := viper.ReadInConfig(); err != nil {
+		zap.S().Error(err)
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 
@@ -108,7 +110,9 @@ func CheckConfig() merror.Error {
 
 	for _, field := range requiredFields {
 		if !viper.IsSet(field) || viper.GetString(field) == "" {
-			return merror.RecordError(errors.New(fmt.Sprintf("%s is missing or empty", field)), http.StatusInternalServerError, "Unable to read Config")
+			err := fmt.Errorf("%s is missing or empty", field)
+			zap.S().Error(err)
+			return merror.RecordError(err, http.StatusInternalServerError, "Unable to read Config")
 		}
 	}
 	return merror.Error{}

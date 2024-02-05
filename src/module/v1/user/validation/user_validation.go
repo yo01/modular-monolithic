@@ -8,6 +8,8 @@ import (
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
+
+	"go.uber.org/zap"
 )
 
 func ValidateUserAccess(carrier *mcarrier.Carrier) merror.Error {
@@ -19,14 +21,18 @@ func ValidateUserAccess(carrier *mcarrier.Carrier) merror.Error {
 		auth := context.(*model.Auth)
 
 		if auth.User.Role.Name == "" {
+			err := errors.New("access denied, you don't have role")
+			zap.S().Error(err)
 			res = merror.Error{
 				Code:  403,
-				Error: errors.New("access denied, you don't have role"),
+				Error: err,
 			}
 		} else if auth.User.Role.Name != "admin" {
+			err := errors.New("access denied, you don't have an access to this api")
+			zap.S().Error(err)
 			res = merror.Error{
 				Code:  403,
-				Error: errors.New("access denied, you don't have an access to this api"),
+				Error: err,
 			}
 		}
 	}

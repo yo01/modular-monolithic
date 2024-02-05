@@ -18,13 +18,13 @@ func InitRoutes(c HandlerConfig) {
 	menuRoutesWithMiddleware := c.R.PathPrefix("/menus").Subrouter()
 	menuRoutesWithMiddleware.Use(middleware.JWT)
 
-	menuRoutesWithMiddleware.HandleFunc("/", MenuHandler.Create).Methods(http.MethodPost).Name("menu.save")
+	menuRoutesWithMiddleware.HandleFunc("", MenuHandler.Create).Methods(http.MethodPost).Name("menu.save")
 	menuRoutesWithMiddleware.HandleFunc("/{id}", MenuHandler.Edit).Methods(http.MethodPut).Name("menu.edit")
 	menuRoutesWithMiddleware.HandleFunc("/{id}", MenuHandler.Delete).Methods(http.MethodDelete).Name("menu.delete")
 
 	// MENU ROUTES WITHOUT MIDDLEWARE
 	menuRoutesWitouthMiddleware := c.R.PathPrefix("/menus").Subrouter()
 
-	menuRoutesWitouthMiddleware.HandleFunc("/", MenuHandler.List).Methods(http.MethodGet).Name("menu.list")
+	menuRoutesWitouthMiddleware.HandleFunc("", MenuHandler.List).Methods(http.MethodGet).Name("menu.list")
 	menuRoutesWitouthMiddleware.HandleFunc("/{id}", MenuHandler.Detail).Methods(http.MethodGet).Name("menu.detail")
 }

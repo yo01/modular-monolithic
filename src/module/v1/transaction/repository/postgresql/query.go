@@ -13,14 +13,14 @@ const (
 
 	INSERT_TRANSACTION = `
 		INSERT INTO "transaction" 
-			("id", "name", "created_at", "updated_at")
+			("id", "cart_id", "is_success_payment", "payment_date", "created_at", "updated_at", "created_by_id", "updated_by_id")
 		VALUES
-			($1, $2, NOW(), NOW())
+			($1, $2, $3, NOW(), NOW(), NOW(), $4, $4)
 	`
 
 	UPDATE_TRANSACTION = `
 		UPDATE "transaction"
-			SET ("name", "updated_at", "updated_by_id") = ($2, NOW(), $3)
+			SET ("cart_id", "updated_at", "updated_by_id") = ($2, NOW(), $3)
 		WHERE id = $1
 	`
 
@@ -38,7 +38,7 @@ const (
 	// ADDITIONAL
 	UPDATE_TRANSACTION_PAYMENT = `
 		UPDATE "transaction"
-			SET ("is_success_payment", "payment_date", "updated_at", "updated_by_id") = ($2, NOW(), NOW(), $3)
+			SET ("is_success_payment", "payment_date", "invoice_number", "updated_at", "updated_by_id") = ($2, $3, NOW(), NOW(), $4)
 		WHERE id = $1
 	`
 )

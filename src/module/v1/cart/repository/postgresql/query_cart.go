@@ -2,7 +2,7 @@ package postgresql
 
 const (
 	SELECT_CART = `
-		SELECT c.id, c.user_id, cart_item.id as cart_item_id,p.id as product_id, p.name as product_name FROM "cart" c  
+		SELECT c.id, c.user_id, c.created_at, cart_item.id as cart_item_id,p.id as product_id, p.name as product_name FROM "cart" c  
 			LEFT JOIN cart_item ON cart_item.cart_id = c.id
 			LEFT JOIN product p ON cart_item.product_id = p.id
 		WHERE c.deleted_at IS NULL

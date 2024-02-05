@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 
+	"modular-monolithic/model"
 	"modular-monolithic/module/v1/user/dto"
 	"modular-monolithic/module/v1/user/helper"
 	userRepository "modular-monolithic/module/v1/user/repository"
@@ -10,11 +11,13 @@ import (
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
 
+	"go.uber.org/zap"
+
 	"github.com/google/uuid"
 )
 
 type IUserService interface {
-	List() (resp []dto.UserResponse, merr merror.Error)
+	List(pagination *model.PageRequest) (resp []dto.UserResponse, merr merror.Error)
 	Detail(id string) (resp *dto.UserResponse, merr merror.Error)
 	Save(req dto.CreateUserRequest) (merr merror.Error)
 	Edit(req dto.UpdateUserRequest, id string) (merr merror.Error)
@@ -35,9 +38,10 @@ func NewUserService(carrier *mcarrier.Carrier) IUserService {
 	}
 }
 
-func (s *UserService) List() (resp []dto.UserResponse, merr merror.Error) {
-	fetch, err := s.UserRepository.UserPostgre.Select()
+func (s *UserService) List(pagination *model.PageRequest) (resp []dto.UserResponse, merr merror.Error) {
+	fetch, err := s.UserRepository.UserPostgre.Select(pagination)
 	if err.Error != nil {
+		zap.S().Error(err.Error)
 		return resp, err
 	}
 
@@ -47,11 +51,14 @@ func (s *UserService) List() (resp []dto.UserResponse, merr merror.Error) {
 func (s *UserService) Detail(id string) (resp *dto.UserResponse, merr merror.Error) {
 	fetch, err := s.UserRepository.UserPostgre.SelectByID(id)
 	if err.Error != nil {
+		zap.S().Error(err.Error)
 		return nil, err
 	} else if fetch.ID == uuid.Nil {
+		err := fmt.Errorf("user with id %v is not found", id)
+		zap.S().Error(err)
 		return nil, merror.Error{
 			Code:  404,
-			Error: fmt.Errorf("user with id %v is not found", id),
+			Error: err,
 		}
 	}
 
@@ -62,6 +69,7 @@ func (s *UserService) Save(req dto.CreateUserRequest) (merr merror.Error) {
 	// HASH PASSWORD
 	hashPassword, err := helper.BycryptPassword(req)
 	if err != nil {
+		zap.S().Error(err)
 		return merror.Error{
 			Error: err,
 		}
@@ -70,6 +78,7 @@ func (s *UserService) Save(req dto.CreateUserRequest) (merr merror.Error) {
 	req.Password = hashPassword
 
 	if err := s.UserRepository.UserPostgre.Insert(req); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 
@@ -79,13 +88,16 @@ func (s *UserService) Save(req dto.CreateUserRequest) (merr merror.Error) {
 func (s *UserService) Edit(req dto.UpdateUserRequest, id string) (merr merror.Error) {
 	fetch, _ := s.UserRepository.UserPostgre.SelectByID(id)
 	if fetch.ID == uuid.Nil {
+		err := fmt.Errorf("user with id %v is not found", id)
+		zap.S().Error(err)
 		return merror.Error{
 			Code:  404,
-			Error: fmt.Errorf("user with id %v is not found", id),
+			Error: err,
 		}
 	}
 
 	if err := s.UserRepository.UserPostgre.Update(req, id); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 
@@ -95,13 +107,16 @@ func (s *UserService) Edit(req dto.UpdateUserRequest, id string) (merr merror.Er
 func (s *UserService) Delete(id string) (merr merror.Error) {
 	fetch, _ := s.UserRepository.UserPostgre.SelectByID(id)
 	if fetch.ID == uuid.Nil {
+		err := fmt.Errorf("user with id %v is not found", id)
+		zap.S().Error(err)
 		return merror.Error{
 			Code:  404,
-			Error: fmt.Errorf("user with id %v is not found", id),
+			Error: err,
 		}
 	}
 
 	if err := s.UserRepository.UserPostgre.Destroy(id); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 

@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 
+	"modular-monolithic/model"
 	"modular-monolithic/module/v1/menu/dto"
 	"modular-monolithic/module/v1/menu/helper"
 	menuRepository "modular-monolithic/module/v1/menu/repository"
@@ -11,11 +12,13 @@ import (
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
 
+	"go.uber.org/zap"
+
 	"github.com/google/uuid"
 )
 
 type IMenuService interface {
-	List() (resp []dto.MenuResponse, merr merror.Error)
+	List(pagination *model.PageRequest) (resp []dto.MenuResponse, merr merror.Error)
 	Detail(id string) (resp *dto.MenuResponse, merr merror.Error)
 	Save(req dto.CreateMenuRequest) (merr merror.Error)
 	Edit(req dto.UpdateMenuRequest, id string) (merr merror.Error)
@@ -36,14 +39,16 @@ func NewMenuService(carrier *mcarrier.Carrier) IMenuService {
 	}
 }
 
-func (s *MenuService) List() (resp []dto.MenuResponse, merr merror.Error) {
+func (s *MenuService) List(pagination *model.PageRequest) (resp []dto.MenuResponse, merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateMenuAccess(s.Carrier); err.Error != nil {
+		zap.S().Error(err.Error)
 		return resp, err
 	}
 
-	fetch, err := s.MenuRepository.MenuPostgre.Select()
+	fetch, err := s.MenuRepository.MenuPostgre.Select(pagination)
 	if err.Error != nil {
+		zap.S().Error(err)
 		return resp, err
 	}
 
@@ -53,16 +58,20 @@ func (s *MenuService) List() (resp []dto.MenuResponse, merr merror.Error) {
 func (s *MenuService) Detail(id string) (resp *dto.MenuResponse, merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateMenuAccess(s.Carrier); err.Error != nil {
+		zap.S().Error(err.Error)
 		return resp, err
 	}
 
 	fetch, err := s.MenuRepository.MenuPostgre.SelectByID(id)
 	if err.Error != nil {
+		zap.S().Error(err.Error)
 		return nil, err
 	} else if fetch.ID == uuid.Nil {
+		err := fmt.Errorf("menu with id %v is not found", id)
+		zap.S().Error(err)
 		return nil, merror.Error{
 			Code:  404,
-			Error: fmt.Errorf("menu with id %v is not found", id),
+			Error: err,
 		}
 	}
 
@@ -72,10 +81,12 @@ func (s *MenuService) Detail(id string) (resp *dto.MenuResponse, merr merror.Err
 func (s *MenuService) Save(req dto.CreateMenuRequest) (merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateMenuAccess(s.Carrier); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 
 	if err := s.MenuRepository.MenuPostgre.Insert(req); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 
@@ -85,18 +96,22 @@ func (s *MenuService) Save(req dto.CreateMenuRequest) (merr merror.Error) {
 func (s *MenuService) Edit(req dto.UpdateMenuRequest, id string) (merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateMenuAccess(s.Carrier); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 
 	fetch, _ := s.MenuRepository.MenuPostgre.SelectByID(id)
 	if fetch.ID == uuid.Nil {
+		err := fmt.Errorf("menu with id %v is not found", id)
+		zap.S().Error(err)
 		return merror.Error{
 			Code:  404,
-			Error: fmt.Errorf("menu with id %v is not found", id),
+			Error: err,
 		}
 	}
 
 	if err := s.MenuRepository.MenuPostgre.Update(req, id); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 
@@ -106,18 +121,22 @@ func (s *MenuService) Edit(req dto.UpdateMenuRequest, id string) (merr merror.Er
 func (s *MenuService) Delete(id string) (merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateMenuAccess(s.Carrier); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 
 	fetch, _ := s.MenuRepository.MenuPostgre.SelectByID(id)
 	if fetch.ID == uuid.Nil {
+		err := fmt.Errorf("menu with id %v is not found", id)
+		zap.S().Error(err)
 		return merror.Error{
 			Code:  404,
-			Error: fmt.Errorf("menu with id %v is not found", id),
+			Error: err,
 		}
 	}
 
 	if err := s.MenuRepository.MenuPostgre.Destroy(id); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 

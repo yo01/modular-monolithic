@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 
+	"modular-monolithic/model"
 	"modular-monolithic/module/v1/product/dto"
 	"modular-monolithic/module/v1/product/helper"
 	productRepository "modular-monolithic/module/v1/product/repository"
@@ -11,11 +12,13 @@ import (
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
 
+	"go.uber.org/zap"
+
 	"github.com/google/uuid"
 )
 
 type IProductService interface {
-	List() (resp []dto.ProductResponse, merr merror.Error)
+	List(pagination *model.PageRequest) (resp []dto.ProductResponse, merr merror.Error)
 	Detail(id string) (resp *dto.ProductResponse, merr merror.Error)
 	Save(req dto.CreateProductRequest) (merr merror.Error)
 	Edit(req dto.UpdateProductRequest, id string) (merr merror.Error)
@@ -36,9 +39,10 @@ func NewProductService(carrier *mcarrier.Carrier) IProductService {
 	}
 }
 
-func (s *ProductService) List() (resp []dto.ProductResponse, merr merror.Error) {
-	fetch, err := s.ProductRepository.ProductPostgre.Select()
+func (s *ProductService) List(pagination *model.PageRequest) (resp []dto.ProductResponse, merr merror.Error) {
+	fetch, err := s.ProductRepository.ProductPostgre.Select(pagination)
 	if err.Error != nil {
+		zap.S().Error(err.Error)
 		return resp, err
 	}
 
@@ -48,11 +52,14 @@ func (s *ProductService) List() (resp []dto.ProductResponse, merr merror.Error) 
 func (s *ProductService) Detail(id string) (resp *dto.ProductResponse, merr merror.Error) {
 	fetch, err := s.ProductRepository.ProductPostgre.SelectByID(id)
 	if err.Error != nil {
+		zap.S().Error(err.Error)
 		return nil, err
 	} else if fetch.ID == uuid.Nil {
+		err := fmt.Errorf("product with id %v is not found", id)
+		zap.S().Error(err.Error)
 		return nil, merror.Error{
 			Code:  404,
-			Error: fmt.Errorf("product with id %v is not found", id),
+			Error: err,
 		}
 	}
 
@@ -62,10 +69,12 @@ func (s *ProductService) Detail(id string) (resp *dto.ProductResponse, merr merr
 func (s *ProductService) Save(req dto.CreateProductRequest) (merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateProductAccess(s.Carrier); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 
 	if err := s.ProductRepository.ProductPostgre.Insert(req); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 
@@ -75,18 +84,22 @@ func (s *ProductService) Save(req dto.CreateProductRequest) (merr merror.Error) 
 func (s *ProductService) Edit(req dto.UpdateProductRequest, id string) (merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateProductAccess(s.Carrier); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 
 	fetch, _ := s.ProductRepository.ProductPostgre.SelectByID(id)
 	if fetch.ID == uuid.Nil {
+		err := fmt.Errorf("product with id %v is not found", id)
+		zap.S().Error(err)
 		return merror.Error{
 			Code:  404,
-			Error: fmt.Errorf("product with id %v is not found", id),
+			Error: err,
 		}
 	}
 
 	if err := s.ProductRepository.ProductPostgre.Update(req, id); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 
@@ -96,18 +109,22 @@ func (s *ProductService) Edit(req dto.UpdateProductRequest, id string) (merr mer
 func (s *ProductService) Delete(id string) (merr merror.Error) {
 	// VALIDATION ACCESS
 	if err := validation.ValidateProductAccess(s.Carrier); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 
 	fetch, _ := s.ProductRepository.ProductPostgre.SelectByID(id)
 	if fetch.ID == uuid.Nil {
+		err := fmt.Errorf("product with id %v is not found", id)
+		zap.S().Error(err)
 		return merror.Error{
 			Code:  404,
-			Error: fmt.Errorf("product with id %v is not found", id),
+			Error: err,
 		}
 	}
 
 	if err := s.ProductRepository.ProductPostgre.Destroy(id); err.Error != nil {
+		zap.S().Error(err.Error)
 		return err
 	}
 

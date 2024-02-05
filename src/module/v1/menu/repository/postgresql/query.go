@@ -13,9 +13,9 @@ const (
 
 	INSERT_MENU = `
 		INSERT INTO "menu" 
-			("id", "name", "created_at", "updated_at")
+			("id", "name", "created_at", "updated_at", "created_by_id", "updated_by_id")
 		VALUES
-			($1, $2, NOW(), NOW())
+			($1, $2, NOW(), NOW(), $3, $3)
 	`
 
 	UPDATE_MENU = `

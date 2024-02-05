@@ -24,7 +24,7 @@ func InitRoutes(c HandlerConfig) {
 	// ROLE ROUTES WITHOUT MIDDLEWARE
 	roleRoutesWithoutMiddleware := c.R.PathPrefix("/roles").Subrouter()
 
-	roleRoutesWithoutMiddleware.HandleFunc("/", RoleHandler.Create).Methods(http.MethodPost).Name("role.save")
-	roleRoutesWithoutMiddleware.HandleFunc("/", RoleHandler.List).Methods(http.MethodGet).Name("role.list")
+	roleRoutesWithoutMiddleware.HandleFunc("", RoleHandler.Create).Methods(http.MethodPost).Name("role.save")
+	roleRoutesWithoutMiddleware.HandleFunc("", RoleHandler.List).Methods(http.MethodGet).Name("role.list")
 	roleRoutesWithoutMiddleware.HandleFunc("/{id}", RoleHandler.Detail).Methods(http.MethodGet).Name("role.detail")
 }

@@ -18,9 +18,9 @@ func InitRoutes(c HandlerConfig) {
 	permissionRoutesWithMiddleware := c.R.PathPrefix("/permissions").Subrouter()
 	permissionRoutesWithMiddleware.Use(middleware.JWT)
 
-	permissionRoutesWithMiddleware.HandleFunc("/", PermissionHandler.List).Methods(http.MethodGet).Name("permission.list")
+	permissionRoutesWithMiddleware.HandleFunc("", PermissionHandler.List).Methods(http.MethodGet).Name("permission.list")
 	permissionRoutesWithMiddleware.HandleFunc("/{id}", PermissionHandler.Detail).Methods(http.MethodGet).Name("permission.detail")
-	permissionRoutesWithMiddleware.HandleFunc("/", PermissionHandler.Create).Methods(http.MethodPost).Name("permission.save")
+	permissionRoutesWithMiddleware.HandleFunc("", PermissionHandler.Create).Methods(http.MethodPost).Name("permission.save")
 	permissionRoutesWithMiddleware.HandleFunc("/{id}", PermissionHandler.Edit).Methods(http.MethodPut).Name("permission.edit")
 	permissionRoutesWithMiddleware.HandleFunc("/{id}", PermissionHandler.Delete).Methods(http.MethodDelete).Name("permission.delete")
 

@@ -18,13 +18,13 @@ func InitRoutes(c HandlerConfig) {
 	productRoutesWithMiddleware := c.R.PathPrefix("/products").Subrouter()
 	productRoutesWithMiddleware.Use(middleware.JWT)
 
-	productRoutesWithMiddleware.HandleFunc("/", ProductHandler.Create).Methods(http.MethodPost).Name("product.save")
+	productRoutesWithMiddleware.HandleFunc("", ProductHandler.Create).Methods(http.MethodPost).Name("product.save")
 	productRoutesWithMiddleware.HandleFunc("/{id}", ProductHandler.Edit).Methods(http.MethodPut).Name("product.edit")
 	productRoutesWithMiddleware.HandleFunc("/{id}", ProductHandler.Delete).Methods(http.MethodDelete).Name("product.delete")
 
 	// PRODUCT ROUTES WITHOUT MIDDLEWARE
 	productRoutesWithoutMiddleware := c.R.PathPrefix("/products").Subrouter()
 
-	productRoutesWithoutMiddleware.HandleFunc("/", ProductHandler.List).Methods(http.MethodGet).Name("product.list")
+	productRoutesWithoutMiddleware.HandleFunc("", ProductHandler.List).Methods(http.MethodGet).Name("product.list")
 	productRoutesWithoutMiddleware.HandleFunc("/{id}", ProductHandler.Detail).Methods(http.MethodGet).Name("product.detail")
 }

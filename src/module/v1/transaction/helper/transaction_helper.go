@@ -16,7 +16,7 @@ func PrepareToTransactionsResponse(data []model.Transaction) (resp []dto.Transac
 
 		// SET DATA
 		newDetail.ID = detail.ID
-		newDetail.Name = detail.Name
+		newDetail.CartID = detail.CartID
 		newDetail.IsSuccessPayment = utils.NullBoolToBool(detail.IsSuccessPayment)
 		newDetail.PaymentDate = detail.PaymentDate
 
@@ -30,11 +30,10 @@ func PrepareToDetailTransactionResponse(data *model.Transaction) (resp *dto.Tran
 	// CONVERT TO RESPONSE STRUCT
 	resp = new(dto.TransactionResponse)
 	resp.ID = data.ID
-	resp.Name = data.Name
+	resp.CartID = data.CartID
 	resp.IsSuccessPayment = utils.NullBoolToBool(data.IsSuccessPayment)
 	resp.PaymentDate = data.PaymentDate
 	resp.PaymentByID = data.PaymentByID
-	resp.PaymentByFullName = data.PaymentByFullName
 
 	return
 }

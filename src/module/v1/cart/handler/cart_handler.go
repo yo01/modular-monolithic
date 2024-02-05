@@ -13,6 +13,8 @@ import (
 	"git.motiolabs.com/library/motiolibs/mhttp"
 	"git.motiolabs.com/library/motiolibs/mresponse"
 
+	"go.uber.org/zap"
+
 	"github.com/google/uuid"
 )
 
@@ -23,12 +25,16 @@ type CartHandler struct {
 }
 
 func (h *CartHandler) List(w http.ResponseWriter, r *http.Request) {
+	// MAIN VARIABLE
+	pagination := utils.GeneratePaginationFromRequest(r)
+
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	resp, merr := h.CartService.List()
+	resp, merr := h.CartService.List(&pagination)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -47,12 +53,15 @@ func (h *CartHandler) Detail(w http.ResponseWriter, r *http.Request) {
 	// Init Service
 	resp, merr := h.CartService.Detail(ID)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	} else if resp.ID == uuid.Nil {
+		err := fmt.Errorf("cart with id %v is not found", ID)
+		zap.S().Error(err)
 		mresponse.Failed(w, merror.Error{
 			Code:  404,
-			Error: fmt.Errorf("cart with id %v is not found", ID),
+			Error: err,
 		})
 		return
 	}
@@ -79,6 +88,7 @@ func (h *CartHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// Init Service
 	resp, merr := h.CartService.Save(req)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -93,6 +103,7 @@ func (h *CartHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 		merr = h.CartItemService.Save(cartItemData)
 		if merr.Error != nil {
+			zap.S().Error(merr.Error)
 			mresponse.Failed(w, merr)
 			return
 		}
@@ -113,6 +124,7 @@ func (h *CartHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	// Validation
 	merr := mhttp.ValidateRequest(r, &req)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -123,6 +135,7 @@ func (h *CartHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	// Init Service
 	merr = h.CartService.Edit(req, ID)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -135,6 +148,7 @@ func (h *CartHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	// UPDATE CART ITEM
 	merr = h.CartItemService.Edit(cartItemData, req.CartItemID, ID)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -153,6 +167,7 @@ func (h *CartHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Init Service
 	merr := h.CartService.Delete(ID)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}
@@ -160,6 +175,7 @@ func (h *CartHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Init Service
 	merr = h.CartItemService.Delete(ID)
 	if merr.Error != nil {
+		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
 		return
 	}

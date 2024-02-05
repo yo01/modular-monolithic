@@ -19,19 +19,19 @@ type Transaction struct {
 
 // Request
 type CreateTransactionRequest struct {
-	Name string `json:"name" validate:"required"`
+	CartID string `json:"cart_id" validate:"required"`
 }
 
 type UpdateTransactionRequest struct {
-	Name string `json:"name" validate:"required"`
+	CartID string `json:"cart_id" validate:"required"`
 }
 
 // Response
 type TransactionResponse struct {
-	ID                uuid.UUID  `json:"id"`
-	Name              string     `json:"name"`
-	IsSuccessPayment  bool       `json:"is_success_payment"`
-	PaymentDate       *time.Time `json:"payment_date"`
-	PaymentByID       string     `json:"payment_by_id"`
-	PaymentByFullName string     `json:"payment_by_full_name"`
+	ID               uuid.UUID  `json:"id"`
+	CartID           uuid.UUID  `json:"cart_id"`
+	IsSuccessPayment bool       `json:"is_success_payment"`
+	PaymentDate      *time.Time `json:"payment_date"`
+	PaymentByID      string     `json:"payment_by_id"`
+	InvoiceNumber    string     `json:"invoice_number"`
 }

@@ -12,6 +12,8 @@ import (
 
 	"git.motiolabs.com/library/motiolibs/mresponse"
 	"git.motiolabs.com/library/motiolibs/mtoken"
+
+	"go.uber.org/zap"
 )
 
 type ctxKey struct {
@@ -35,6 +37,7 @@ func JWT(next http.Handler) http.Handler {
 
 		data, err := mtoken.ValidateJWTToken(token, SECRET_KEY)
 		if err.Error != nil {
+			zap.S().Error(err.Error)
 			mresponse.Failed(w, err)
 			return
 		}

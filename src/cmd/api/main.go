@@ -17,6 +17,8 @@ import (
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 
+	"go.uber.org/zap"
+
 	"github.com/rs/cors"
 )
 
@@ -83,6 +85,7 @@ func main() {
 
 func listenAndServe(apiServer *http.Server) {
 	if err := apiServer.ListenAndServe(); err != nil {
+		zap.S().Error(err)
 		logger.Log.Fatal("unable to server", err)
 	}
 }
@@ -98,6 +101,7 @@ func waitForShutdown(apiServer *http.Server) {
 	logger.Log.Info("shutting down", nil)
 
 	if err := apiServer.Shutdown(context.Background()); err != nil {
+		zap.S().Error(err)
 		logger.Log.Error("Error", err)
 	}
 
