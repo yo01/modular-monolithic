@@ -7,6 +7,7 @@ import (
 	"modular-monolithic/module/v1/permission/helper"
 	permissionRepository "modular-monolithic/module/v1/permission/repository"
 	"modular-monolithic/module/v1/permission/validation"
+	roleRepository "modular-monolithic/module/v1/role/repository"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
@@ -27,14 +28,17 @@ type IPermissionService interface {
 type PermissionService struct {
 	Carrier              *mcarrier.Carrier
 	PermissionRepository permissionRepository.PermissionRepository
+	RoleRepository       roleRepository.RoleRepository
 }
 
 func NewRoleService(carrier *mcarrier.Carrier) IPermissionService {
 	permissionRepository := permissionRepository.NewRepository(carrier)
+	roleRepository := roleRepository.NewRepository(carrier)
 
 	return &PermissionService{
 		Carrier:              carrier,
 		PermissionRepository: permissionRepository,
+		RoleRepository:       roleRepository,
 	}
 }
 
@@ -78,6 +82,17 @@ func (s *PermissionService) Detail(id string) (resp *dto.PermissionResponse, mer
 }
 
 func (s *PermissionService) Save(req dto.CreatePermissionRequest) (merr merror.Error) {
+	// CHECK ROLE IS EXIST OR NOT
+	role, _ := s.RoleRepository.RolePostgre.SelectByID(req.RoleID)
+	if role.ID == uuid.Nil {
+		err := fmt.Errorf("role with id %s is not found", req.RoleID)
+		zap.S().Error(err)
+		return merror.Error{
+			Code:  404,
+			Error: err,
+		}
+	}
+
 	// VALIDATION ACCESS
 	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
 		zap.S().Error(err.Error)
@@ -93,6 +108,17 @@ func (s *PermissionService) Save(req dto.CreatePermissionRequest) (merr merror.E
 }
 
 func (s *PermissionService) Edit(req dto.UpdatePermissionRequest, id string) (merr merror.Error) {
+	// CHECK ROLE IS EXIST OR NOT
+	role, _ := s.RoleRepository.RolePostgre.SelectByID(req.RoleID)
+	if role.ID == uuid.Nil {
+		err := fmt.Errorf("role with id %s is not found", req.RoleID)
+		zap.S().Error(err)
+		return merror.Error{
+			Code:  404,
+			Error: err,
+		}
+	}
+
 	// VALIDATION ACCESS
 	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
 		zap.S().Error(err.Error)

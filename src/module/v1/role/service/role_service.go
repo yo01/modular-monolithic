@@ -46,19 +46,23 @@ func NewRoleService(carrier *mcarrier.Carrier) IRoleService {
 
 func (s *RoleService) List(subRouterName string) (resp []dto.RoleResponse, merr merror.Error) {
 	// GET DATA FROM CONTEXT MIDDLEWARE
-	auth := s.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	context := s.Carrier.Context.Value(middleware.AuthUserCtxKey)
 
-	// GET PERMISSION DATA BY ROLE ID
-	permission, err := s.PermissionRepository.PermissionPostgre.SelectByRoleID(auth.User.Role.ID.String())
-	if err.Error != nil {
-		zap.S().Error(err.Error)
-		return resp, err
-	}
+	if context != nil {
+		auth := context.(*model.Auth)
 
-	// VALIDATION ACCESS
-	if err := validation.ValidateRoleAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
-		zap.S().Error(err.Error)
-		return resp, err
+		// GET PERMISSION DATA BY ROLE ID
+		permission, err := s.PermissionRepository.PermissionPostgre.SelectByRoleID(auth.User.Role.ID.String())
+		if err.Error != nil {
+			zap.S().Error(err.Error)
+			return resp, err
+		}
+
+		// VALIDATION ACCESS
+		if err := validation.ValidateRoleAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+			zap.S().Error(err.Error)
+			return resp, err
+		}
 	}
 
 	fetch, err := s.RoleRepository.RolePostgre.Select()
@@ -72,19 +76,23 @@ func (s *RoleService) List(subRouterName string) (resp []dto.RoleResponse, merr 
 
 func (s *RoleService) Detail(id, subRouterName string) (resp *dto.RoleResponse, merr merror.Error) {
 	// GET DATA FROM CONTEXT MIDDLEWARE
-	auth := s.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	context := s.Carrier.Context.Value(middleware.AuthUserCtxKey)
 
-	// GET PERMISSION DATA BY ROLE ID
-	permission, err := s.PermissionRepository.PermissionPostgre.SelectByRoleID(auth.User.Role.ID.String())
-	if err.Error != nil {
-		zap.S().Error(err.Error)
-		return resp, err
-	}
+	if context != nil {
+		auth := context.(*model.Auth)
 
-	// VALIDATION ACCESS
-	if err := validation.ValidateRoleAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
-		zap.S().Error(err.Error)
-		return resp, err
+		// GET PERMISSION DATA BY ROLE ID
+		permission, err := s.PermissionRepository.PermissionPostgre.SelectByRoleID(auth.User.Role.ID.String())
+		if err.Error != nil {
+			zap.S().Error(err.Error)
+			return resp, err
+		}
+
+		// VALIDATION ACCESS
+		if err := validation.ValidateRoleAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+			zap.S().Error(err.Error)
+			return resp, err
+		}
 	}
 
 	fetch, err := s.RoleRepository.RolePostgre.SelectByID(id)
@@ -105,19 +113,34 @@ func (s *RoleService) Detail(id, subRouterName string) (resp *dto.RoleResponse, 
 
 func (s *RoleService) Save(req dto.CreateRoleRequest, subRouterName string) (merr merror.Error) {
 	// GET DATA FROM CONTEXT MIDDLEWARE
-	auth := s.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	context := s.Carrier.Context.Value(middleware.AuthUserCtxKey)
 
-	// GET PERMISSION DATA BY ROLE ID
-	permission, err := s.PermissionRepository.PermissionPostgre.SelectByRoleID(auth.User.Role.ID.String())
-	if err.Error != nil {
-		zap.S().Error(err.Error)
-		return err
+	// CHECK ROLE WITH REQUEST NAME IS EXIST OR NOT
+	exist, _ := s.RoleRepository.RolePostgre.SelectByName(req.Name)
+	if exist != nil && exist.ID != uuid.Nil {
+		err := fmt.Errorf("role with name %v is already exist", req.Name)
+		zap.S().Error(err)
+		return merror.Error{
+			Code:  409,
+			Error: err,
+		}
 	}
 
-	// VALIDATION ACCESS
-	if err := validation.ValidateRoleAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
-		zap.S().Error(err.Error)
-		return err
+	if context != nil {
+		auth := context.(*model.Auth)
+
+		// GET PERMISSION DATA BY ROLE ID
+		permission, err := s.PermissionRepository.PermissionPostgre.SelectByRoleID(auth.User.Role.ID.String())
+		if err.Error != nil {
+			zap.S().Error(err.Error)
+			return err
+		}
+
+		// VALIDATION ACCESS
+		if err := validation.ValidateRoleAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+			zap.S().Error(err.Error)
+			return err
+		}
 	}
 
 	if err := s.RoleRepository.RolePostgre.Insert(req); err.Error != nil {

@@ -7,8 +7,8 @@ const (
 	`
 
 	SELECT_ROLE_BY_ID = `
-		SELECT * FROM "role" r WHERE r.id = $1
-		WHERE r.deleted_at IS NULL
+		SELECT * FROM "role" r 
+		WHERE r.deleted_at IS NULL AND r.id = $1
 	`
 
 	INSERT_ROLE = `
@@ -33,5 +33,10 @@ const (
 		UPDATE "role"
 			SET ("updated_at", "updated_by_id", "deleted_at", "deleted_by_id") = (NOW(), $2, NOW(), $2)
 		WHERE id = $1
+	`
+
+	SELECT_ROLE_BY_NAME = `
+		SELECT * FROM "role" r 
+		WHERE r.deleted_at IS NULL AND r.name = $1
 	`
 )

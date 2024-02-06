@@ -20,6 +20,8 @@ type IRolePostgre interface {
 	Insert(data dto.CreateRoleRequest) (merr merror.Error)
 	Update(data dto.UpdateRoleRequest, id string) (merr merror.Error)
 	Destroy(id string) (merr merror.Error)
+
+	SelectByName(name string) (resp *model.Role, merr merror.Error)
 }
 
 type rolePostgre struct {
@@ -151,4 +153,30 @@ func (r rolePostgre) Destroy(id string) (merr merror.Error) {
 	}
 
 	return merr
+}
+
+func (r rolePostgre) SelectByName(name string) (resp *model.Role, merr merror.Error) {
+	row, err := r.Carrier.Library.Sqlx.Queryx(SELECT_ROLE_BY_NAME, name)
+	if err != nil {
+		zap.S().Error(err)
+		return nil, merror.Error{
+			Code:  500,
+			Error: err,
+		}
+	}
+	defer row.Close()
+
+	var role model.Role
+
+	for row.Next() {
+		if err := row.StructScan(&role); err != nil {
+			zap.S().Error(err)
+			return nil, merror.Error{
+				Code:  500,
+				Error: err,
+			}
+		}
+	}
+
+	return &role, merr
 }
