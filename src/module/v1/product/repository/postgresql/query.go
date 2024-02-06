@@ -8,9 +8,9 @@ const (
 	`
 
 	SELECT_PRODUCT_BY_ID = `
-		SELECT * p.id, p.name "product" p WHERE p.id = $1
+		SELECT p.id, p.name FROM "product" p  
 			LEFT JOIN menu ON p.menu_id = menu.id
-		WHERE p.deleted_at IS NULL
+		WHERE p.id = $1 AND p.deleted_at IS NULL
 	`
 
 	INSERT_PRODUCT = `

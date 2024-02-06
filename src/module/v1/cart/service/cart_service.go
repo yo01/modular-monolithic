@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"modular-monolithic/module/v1/cart/dto"
 	"modular-monolithic/module/v1/cart/helper"
 	cartRepository "modular-monolithic/module/v1/cart/repository"
@@ -48,6 +49,13 @@ func (s *CartService) Detail(id string) (resp *dto.CartResponse, merr merror.Err
 	if err.Error != nil {
 		zap.S().Error(err.Error)
 		return nil, err
+	} else if len(data) == 0 {
+		err := fmt.Errorf("cart with id %s is not found", id)
+		zap.S().Error(err)
+		return resp, merror.Error{
+			Code:  404,
+			Error: err,
+		}
 	}
 
 	return helper.PrepareToDetailCartResponse(data), err

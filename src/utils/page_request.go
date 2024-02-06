@@ -95,14 +95,14 @@ func GetSQLValue(operator string, value interface{}) string {
 	}
 }
 
-func BuildFilterCondition(filters []map[string]map[string]interface{}) string {
+func BuildFilterCondition(filters []map[string]map[string]interface{}, initial string) string {
 	var conditions []string
 
 	for _, filter := range filters {
 		// Loop through inner map
 		for key, valueMap := range filter {
 			for operator, value := range valueMap {
-				condition := fmt.Sprintf("%s %s %s", fmt.Sprintf("r.%v", key), operator, GetSQLValue(operator, value))
+				condition := fmt.Sprintf("%s %s %s", fmt.Sprintf("%v.%v", initial, key), operator, GetSQLValue(operator, value))
 				conditions = append(conditions, condition)
 			}
 		}
@@ -151,13 +151,13 @@ func BuildQuery(pageRequest *model.PageRequest, initial string, searchFields []s
 
 	// FILTER
 	if pageRequest.Filters != nil {
-		if filterCondition := BuildFilterCondition(pageRequest.Filters); filterCondition != "" {
+		if filterCondition := BuildFilterCondition(pageRequest.Filters, initial); filterCondition != "" {
 			sqlQuery += "AND " + filterCondition + " "
 		}
 	}
 
 	// SEARCH
-	if pageRequest.Search != "" {
+	if pageRequest.Search != "" && len(searchFields) > 0 {
 		searchCondition := BuildSearchCondition(searchFields, pageRequest.Search)
 		sqlQuery += "AND " + searchCondition + " "
 	}

@@ -22,9 +22,10 @@ type MenuHandler struct {
 func (h *MenuHandler) List(w http.ResponseWriter, r *http.Request) {
 	// Init carrier
 	h.Carrier.Context = r.Context()
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Init Service
-	resp, merr := h.MenuService.List()
+	resp, merr := h.MenuService.List(subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -41,9 +42,10 @@ func (h *MenuHandler) Detail(w http.ResponseWriter, r *http.Request) {
 
 	// Init carrier
 	h.Carrier.Context = r.Context()
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Init Service
-	resp, merr := h.MenuService.Detail(ID)
+	resp, merr := h.MenuService.Detail(ID, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -58,6 +60,7 @@ func (h *MenuHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var (
 		req dto.CreateMenuRequest
 	)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Validation
 	merr := mhttp.ValidateRequest(r, &req)
@@ -71,7 +74,7 @@ func (h *MenuHandler) Create(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr = h.MenuService.Save(req)
+	merr = h.MenuService.Save(req, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -89,6 +92,7 @@ func (h *MenuHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	var (
 		req dto.UpdateMenuRequest
 	)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Validation
 	merr := mhttp.ValidateRequest(r, &req)
@@ -102,7 +106,7 @@ func (h *MenuHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr = h.MenuService.Edit(req, ID)
+	merr = h.MenuService.Edit(req, ID, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -116,12 +120,13 @@ func (h *MenuHandler) Edit(w http.ResponseWriter, r *http.Request) {
 func (h *MenuHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Param
 	ID := utils.GetID(r)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr := h.MenuService.Delete(ID)
+	merr := h.MenuService.Delete(ID, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)

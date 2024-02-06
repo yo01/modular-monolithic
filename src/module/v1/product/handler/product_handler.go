@@ -22,9 +22,10 @@ type ProductHandler struct {
 func (h *ProductHandler) List(w http.ResponseWriter, r *http.Request) {
 	// Init carrier
 	h.Carrier.Context = r.Context()
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Init Service
-	resp, merr := h.ProductService.List()
+	resp, merr := h.ProductService.List(subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -38,12 +39,13 @@ func (h *ProductHandler) List(w http.ResponseWriter, r *http.Request) {
 func (h *ProductHandler) Detail(w http.ResponseWriter, r *http.Request) {
 	// Param
 	ID := utils.GetID(r)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	resp, merr := h.ProductService.Detail(ID)
+	resp, merr := h.ProductService.Detail(ID, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -58,6 +60,7 @@ func (h *ProductHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var (
 		req dto.CreateProductRequest
 	)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Validation
 	merr := mhttp.ValidateRequest(r, &req)
@@ -71,7 +74,7 @@ func (h *ProductHandler) Create(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr = h.ProductService.Save(req)
+	merr = h.ProductService.Save(req, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -89,6 +92,7 @@ func (h *ProductHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	var (
 		req dto.UpdateProductRequest
 	)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Validation
 	merr := mhttp.ValidateRequest(r, &req)
@@ -102,7 +106,7 @@ func (h *ProductHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr = h.ProductService.Edit(req, ID)
+	merr = h.ProductService.Edit(req, ID, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -116,12 +120,13 @@ func (h *ProductHandler) Edit(w http.ResponseWriter, r *http.Request) {
 func (h *ProductHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Param
 	ID := utils.GetID(r)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr := h.ProductService.Delete(ID)
+	merr := h.ProductService.Delete(ID, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)

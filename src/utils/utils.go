@@ -14,7 +14,14 @@ func GetID(r *http.Request) (ID string) {
 	vars := mux.Vars(r)
 	ID = vars["id"]
 
-	return ID
+	return
+}
+
+func GetSubRouterName(r *http.Request) (subRouterName string) {
+	vars := mux.CurrentRoute(r)
+	subRouterName = vars.GetName()
+
+	return
 }
 
 func NullBoolToBool(nb sql.NullBool) bool {
@@ -35,4 +42,13 @@ func ParseStringToUUID(value string) (resp uuid.UUID) {
 	}
 
 	return
+}
+
+func InStringArray(value string, array []string) bool {
+	for _, v := range array {
+		if v == value {
+			return true
+		}
+	}
+	return false
 }

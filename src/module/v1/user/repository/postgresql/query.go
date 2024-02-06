@@ -2,22 +2,24 @@ package postgresql
 
 const (
 	SELECT_USER = `
-		SELECT u.id , u.email , u.password, u.full_name, u.role_id, u.created_at, u.created_at, u.deleted_at, role.name as role_name  FROM "user" u
+		SELECT u.id , u.email , u.password, u.full_name, u.role_id, u.created_at, u.created_at, u.deleted_at, role.name as role_name, role.id as role_id, p.id as permission_id, p.role_id as permission_role_id, p.list_api as list_api FROM "user" u
 			LEFT JOIN role ON u.role_id = role.id
+			LEFT JOIN permission p ON p.role_id = role.id
 		WHERE u.deleted_at IS NULL
 	`
 
 	SELECT_USER_BY_ID = `
-		SELECT u.id , u.email , u.password, u.full_name, u.role_id, u.deleted_at, role.name as role_name  FROM "user" u
-			LEFT JOIN role ON u.role_id = role.id 
-		WHERE u.id = $1 AND u.deleted_at IS NULL
+		SELECT u.id , u.email , u.password, u.full_name, u.role_id, u.created_at, u.created_at, u.deleted_at, role.name as role_name, role.id as role_id, p.id as permission_id, p.role_id as permission_role_id, p.list_api as list_api FROM "user" u
+			LEFT JOIN role ON u.role_id = role.id
+			LEFT JOIN permission p ON p.role_id = role.id
+		WHERE u.deleted_at IS NULL AND u.id = $1
 	`
 
 	INSERT_USER = `
 		INSERT INTO "user" 
-			("id", "email", "password", "full_name", "role_id", "created_at", "updated_at", "created_by_id", "updated_by_id")
+			("id", "email", "password", "full_name", "role_id", "created_at", "updated_at")
 		VALUES
-			($1, $2, $3, $4, $5, NOW(), NOW(), $6, $6)
+			($1, $2, $3, $4, $5, NOW(), NOW())
 	`
 
 	UPDATE_USER = `
@@ -39,8 +41,9 @@ const (
 
 	// ADDITIONAL
 	SELECT_USER_BY_EMAIL = `
-		SELECT u.id , u.email , u.password, u.full_name, u.role_id, role.name as role_name  FROM "user" u
-			LEFT JOIN role ON u.role_id = role.id 
-		WHERE u.email = $1 AND u.deleted_at IS NULL
+		SELECT u.id , u.email , u.password, u.full_name, u.role_id, u.created_at, u.created_at, u.deleted_at, role.name as role_name, role.id as role_id, p.id as permission_id, p.role_id as permission_role_id, p.list_api as list_api FROM "user" u
+			LEFT JOIN role ON u.role_id = role.id
+			LEFT JOIN permission p ON p.role_id = role.id
+		WHERE u.deleted_at IS NULL AND u.email = $1
 	`
 )

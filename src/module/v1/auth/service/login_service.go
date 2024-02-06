@@ -6,7 +6,8 @@ import (
 	"modular-monolithic/module/v1/auth/dto"
 	"modular-monolithic/module/v1/auth/helper"
 	authRepository "modular-monolithic/module/v1/auth/repository"
-	roleDTO "modular-monolithic/module/v1/role/dto"
+	userDTO "modular-monolithic/module/v1/user/dto"
+	userHelper "modular-monolithic/module/v1/user/helper"
 	userRepository "modular-monolithic/module/v1/user/repository"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
@@ -46,8 +47,10 @@ func (s *AuthService) SignIn(req dto.LoginRequest) (resp *dto.LoginResponse, mer
 		return nil, err
 	}
 
+	userResponse := userHelper.PrepareToLoginDetailUserResponse(user)
+
 	// Verify password
-	if err := helper.VerifyPassword(*user.Password, req.Password); err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+	if err := helper.VerifyPassword(userResponse.Password, req.Password); err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		zap.S().Error(err.Error())
 		return nil, merror.Error{
 			Code:  500,
@@ -56,7 +59,7 @@ func (s *AuthService) SignIn(req dto.LoginRequest) (resp *dto.LoginResponse, mer
 	}
 
 	// Create tokens
-	accessToken, refreshToken, err := CreateToken(user)
+	accessToken, refreshToken, err := CreateToken(userResponse)
 	if err.Error != nil {
 		zap.S().Error(err.Error)
 		return nil, err
@@ -64,25 +67,22 @@ func (s *AuthService) SignIn(req dto.LoginRequest) (resp *dto.LoginResponse, mer
 
 	// Build the response
 	resp = &dto.LoginResponse{
-		ID:           user.ID,
-		FullName:     user.FullName,
-		Email:        user.Email,
+		ID:           userResponse.ID,
+		FullName:     userResponse.FullName,
+		Email:        userResponse.Email,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
 
 	// Include role details if available
-	if user.RoleName != nil {
-		resp.Role = &roleDTO.RoleResponse{
-			ID:   user.RoleID,
-			Name: *user.RoleName,
-		}
+	if userResponse.Role != nil {
+		resp.Role = userResponse.Role
 	}
 
 	return resp, merr
 }
 
-func CreateToken(user *model.User) (accessToken, refreshToken string, err merror.Error) {
+func CreateToken(user *userDTO.UserLoginResponse) (accessToken, refreshToken string, err merror.Error) {
 	// Get config data
 	config := config.Get()
 
@@ -92,12 +92,7 @@ func CreateToken(user *model.User) (accessToken, refreshToken string, err merror
 		UserID:     user.ID,
 		Email:      user.Email,
 		FullName:   user.FullName,
-		RoleID:     user.RoleID,
-	}
-
-	// Include role details if available
-	if user.RoleName != nil {
-		claims.RoleName = *user.RoleName
+		Role:       user.Role,
 	}
 
 	// Generate JWT tokens

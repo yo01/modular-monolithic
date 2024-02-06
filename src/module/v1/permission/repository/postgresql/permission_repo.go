@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type IPermissionPostgre interface {
@@ -20,6 +21,9 @@ type IPermissionPostgre interface {
 	Insert(data dto.CreatePermissionRequest) (merr merror.Error)
 	Update(data dto.UpdatePermissionRequest, id string) (merr merror.Error)
 	Destroy(id string) (merr merror.Error)
+
+	// ADDITIONAL
+	SelectByRoleID(roleID string) (resp *model.Permission, merr merror.Error)
 }
 
 type permissionPostgre struct {
@@ -38,9 +42,7 @@ func (r permissionPostgre) Select() (resp []model.Permission, merr merror.Error)
 
 	// MAIN VARIABLE
 	sqlQuery := SELECT_PERMISSION
-	sqlQuery += utils.BuildQuery(pageRequest, "p", []string{
-		"p.name",
-	})
+	sqlQuery += utils.BuildQuery(pageRequest, "p", nil)
 
 	rows, err := r.Carrier.Library.Sqlx.Queryx(sqlQuery)
 	if err != nil {
@@ -107,12 +109,11 @@ func (r permissionPostgre) Insert(data dto.CreatePermissionRequest) (merr merror
 	// GENERATE NEW UUID
 	id := uuid.New()
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, INSERT_PERMISSION, id, data.Name)
-	if row == nil {
-		zap.S().Error(row.Err())
+	if _, err := r.Carrier.Library.Sqlx.Queryx(INSERT_PERMISSION, id, data.RoleID, pq.StringArray(data.ListAPI)); err != nil {
+		zap.S().Error(err)
 		return merror.Error{
 			Code:  500,
-			Error: row.Err(),
+			Error: err,
 		}
 	}
 
@@ -124,12 +125,12 @@ func (r permissionPostgre) Update(data dto.UpdatePermissionRequest, id string) (
 	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
 	authUser := auth.User
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_PERMISSION, id, data.Name, authUser.ID)
-	if row == nil {
-		zap.S().Error(row.Err())
+	_, err := r.Carrier.Library.Sqlx.Queryx(UPDATE_PERMISSION, id, data.RoleID, pq.StringArray(data.ListAPI), authUser.ID)
+	if err != nil {
+		zap.S().Error(err)
 		return merror.Error{
 			Code:  500,
-			Error: row.Err(),
+			Error: err,
 		}
 	}
 
@@ -141,14 +142,40 @@ func (r permissionPostgre) Destroy(id string) (merr merror.Error) {
 	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
 	authUser := auth.User
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, SOFT_DELETE_PERMISSION, id, authUser.ID)
-	if row == nil {
-		zap.S().Error(row.Err())
+	_, err := r.Carrier.Library.Sqlx.Queryx(SOFT_DELETE_PERMISSION, id, authUser.ID)
+	if err == nil {
+		zap.S().Error(err)
 		return merror.Error{
 			Code:  500,
-			Error: row.Err(),
+			Error: err,
 		}
 	}
 
 	return merr
+}
+
+func (r permissionPostgre) SelectByRoleID(roleID string) (resp *model.Permission, merr merror.Error) {
+	row, err := r.Carrier.Library.Sqlx.Queryx(SELECT_PERMISSION_BY_ROLE_ID, roleID)
+	if err != nil {
+		zap.S().Error(err)
+		return nil, merror.Error{
+			Code:  500,
+			Error: err,
+		}
+	}
+	defer row.Close()
+
+	var role model.Permission
+
+	for row.Next() {
+		if err := row.StructScan(&role); err != nil {
+			zap.S().Error(err)
+			return nil, merror.Error{
+				Code:  500,
+				Error: err,
+			}
+		}
+	}
+
+	return &role, merr
 }

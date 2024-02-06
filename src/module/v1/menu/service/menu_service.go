@@ -3,10 +3,13 @@ package service
 import (
 	"fmt"
 
+	"modular-monolithic/model"
 	"modular-monolithic/module/v1/menu/dto"
 	"modular-monolithic/module/v1/menu/helper"
 	menuRepository "modular-monolithic/module/v1/menu/repository"
 	"modular-monolithic/module/v1/menu/validation"
+	permissionRepository "modular-monolithic/module/v1/permission/repository"
+	"modular-monolithic/security/middleware"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
@@ -17,30 +20,43 @@ import (
 )
 
 type IMenuService interface {
-	List() (resp []dto.MenuResponse, merr merror.Error)
-	Detail(id string) (resp *dto.MenuResponse, merr merror.Error)
-	Save(req dto.CreateMenuRequest) (merr merror.Error)
-	Edit(req dto.UpdateMenuRequest, id string) (merr merror.Error)
-	Delete(id string) (merr merror.Error)
+	List(subRouterName string) (resp []dto.MenuResponse, merr merror.Error)
+	Detail(id, subRouterName string) (resp *dto.MenuResponse, merr merror.Error)
+	Save(req dto.CreateMenuRequest, subRouterName string) (merr merror.Error)
+	Edit(req dto.UpdateMenuRequest, id, subRouterName string) (merr merror.Error)
+	Delete(id, subRouterName string) (merr merror.Error)
 }
 
 type MenuService struct {
-	Carrier        *mcarrier.Carrier
-	MenuRepository menuRepository.MenuRepository
+	Carrier              *mcarrier.Carrier
+	MenuRepository       menuRepository.MenuRepository
+	PermissionRepository permissionRepository.PermissionRepository
 }
 
 func NewMenuService(carrier *mcarrier.Carrier) IMenuService {
 	menuRepository := menuRepository.NewRepository(carrier)
+	permissionRepository := permissionRepository.NewRepository(carrier)
 
 	return &MenuService{
-		Carrier:        carrier,
-		MenuRepository: menuRepository,
+		Carrier:              carrier,
+		MenuRepository:       menuRepository,
+		PermissionRepository: permissionRepository,
 	}
 }
 
-func (s *MenuService) List() (resp []dto.MenuResponse, merr merror.Error) {
+func (s *MenuService) List(subRouterName string) (resp []dto.MenuResponse, merr merror.Error) {
+	// GET DATA FROM CONTEXT MIDDLEWARE
+	auth := s.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+
+	// GET PERMISSION DATA BY ROLE ID
+	permission, err := s.PermissionRepository.PermissionPostgre.SelectByRoleID(auth.User.Role.ID.String())
+	if err.Error != nil {
+		zap.S().Error(err.Error)
+		return resp, err
+	}
+
 	// VALIDATION ACCESS
-	if err := validation.ValidateMenuAccess(s.Carrier); err.Error != nil {
+	if err := validation.ValidateMenuAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err
 	}
@@ -54,9 +70,19 @@ func (s *MenuService) List() (resp []dto.MenuResponse, merr merror.Error) {
 	return helper.PrepareToMenusResponse(fetch), err
 }
 
-func (s *MenuService) Detail(id string) (resp *dto.MenuResponse, merr merror.Error) {
+func (s *MenuService) Detail(id, subRouterName string) (resp *dto.MenuResponse, merr merror.Error) {
+	// GET DATA FROM CONTEXT MIDDLEWARE
+	auth := s.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+
+	// GET PERMISSION DATA BY ROLE ID
+	permission, err := s.PermissionRepository.PermissionPostgre.SelectByRoleID(auth.User.Role.ID.String())
+	if err.Error != nil {
+		zap.S().Error(err.Error)
+		return resp, err
+	}
+
 	// VALIDATION ACCESS
-	if err := validation.ValidateMenuAccess(s.Carrier); err.Error != nil {
+	if err := validation.ValidateMenuAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err
 	}
@@ -77,9 +103,19 @@ func (s *MenuService) Detail(id string) (resp *dto.MenuResponse, merr merror.Err
 	return helper.PrepareToDetailMenuResponse(fetch), err
 }
 
-func (s *MenuService) Save(req dto.CreateMenuRequest) (merr merror.Error) {
+func (s *MenuService) Save(req dto.CreateMenuRequest, subRouterName string) (merr merror.Error) {
+	// GET DATA FROM CONTEXT MIDDLEWARE
+	auth := s.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+
+	// GET PERMISSION DATA BY ROLE ID
+	permission, err := s.PermissionRepository.PermissionPostgre.SelectByRoleID(auth.User.Role.ID.String())
+	if err.Error != nil {
+		zap.S().Error(err.Error)
+		return err
+	}
+
 	// VALIDATION ACCESS
-	if err := validation.ValidateMenuAccess(s.Carrier); err.Error != nil {
+	if err := validation.ValidateMenuAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}
@@ -92,9 +128,19 @@ func (s *MenuService) Save(req dto.CreateMenuRequest) (merr merror.Error) {
 	return merr
 }
 
-func (s *MenuService) Edit(req dto.UpdateMenuRequest, id string) (merr merror.Error) {
+func (s *MenuService) Edit(req dto.UpdateMenuRequest, id, subRouterName string) (merr merror.Error) {
+	// GET DATA FROM CONTEXT MIDDLEWARE
+	auth := s.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+
+	// GET PERMISSION DATA BY ROLE ID
+	permission, err := s.PermissionRepository.PermissionPostgre.SelectByRoleID(auth.User.Role.ID.String())
+	if err.Error != nil {
+		zap.S().Error(err.Error)
+		return err
+	}
+
 	// VALIDATION ACCESS
-	if err := validation.ValidateMenuAccess(s.Carrier); err.Error != nil {
+	if err := validation.ValidateMenuAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}
@@ -117,9 +163,19 @@ func (s *MenuService) Edit(req dto.UpdateMenuRequest, id string) (merr merror.Er
 	return merr
 }
 
-func (s *MenuService) Delete(id string) (merr merror.Error) {
+func (s *MenuService) Delete(id, subRouterName string) (merr merror.Error) {
+	// GET DATA FROM CONTEXT MIDDLEWARE
+	auth := s.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+
+	// GET PERMISSION DATA BY ROLE ID
+	permission, err := s.PermissionRepository.PermissionPostgre.SelectByRoleID(auth.User.Role.ID.String())
+	if err.Error != nil {
+		zap.S().Error(err.Error)
+		return err
+	}
+
 	// VALIDATION ACCESS
-	if err := validation.ValidateMenuAccess(s.Carrier); err.Error != nil {
+	if err := validation.ValidateMenuAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}

@@ -2,13 +2,13 @@ package postgresql
 
 const (
 	SELECT_MENU = `
-		SELECT * FROM "menu" m
+		SELECT m.id, m.name, m.created_at, m.deleted_at FROM "menu" m
 		WHERE m.deleted_at IS NULL
 	`
 
 	SELECT_MENU_BY_ID = `
-		SELECT * FROM "menu" m WHERE m.id = $1
-		WHERE m.deleted_at IS NULL
+		SELECT m.id, m.name, m.created_at, m.deleted_at FROM "menu" m
+		WHERE m.deleted_at IS NULL AND m.id = $1
 	`
 
 	INSERT_MENU = `

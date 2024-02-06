@@ -15,7 +15,6 @@ type Transaction struct {
 	CreatedAt        time.Time    `db:"created_at"`
 	IsSuccessPayment sql.NullBool `db:"is_success_payment"`
 	PaymentByID      string       `db:"payment_by_id"`
-	InvoiceNumber    string       `db:"invoice_number"`
 	ID               uuid.UUID    `db:"id"`
 	CartID           uuid.UUID    `db:"cart_id"`
 	CartUserID       uuid.UUID    `db:"cart_user_id"`

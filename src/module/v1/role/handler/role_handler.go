@@ -22,9 +22,10 @@ type RoleHandler struct {
 func (h *RoleHandler) List(w http.ResponseWriter, r *http.Request) {
 	// Init carrier
 	h.Carrier.Context = r.Context()
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Init Service
-	resp, merr := h.RoleService.List()
+	resp, merr := h.RoleService.List(subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -38,12 +39,13 @@ func (h *RoleHandler) List(w http.ResponseWriter, r *http.Request) {
 func (h *RoleHandler) Detail(w http.ResponseWriter, r *http.Request) {
 	// Param
 	ID := utils.GetID(r)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	resp, merr := h.RoleService.Detail(ID)
+	resp, merr := h.RoleService.Detail(ID, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -58,6 +60,7 @@ func (h *RoleHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var (
 		req dto.CreateRoleRequest
 	)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Validation
 	merr := mhttp.ValidateRequest(r, &req)
@@ -71,7 +74,7 @@ func (h *RoleHandler) Create(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr = h.RoleService.Save(req)
+	merr = h.RoleService.Save(req, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -85,6 +88,7 @@ func (h *RoleHandler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *RoleHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	// Param
 	ID := utils.GetID(r)
+	subRouterName := utils.GetSubRouterName(r)
 
 	var (
 		req dto.UpdateRoleRequest
@@ -102,7 +106,7 @@ func (h *RoleHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr = h.RoleService.Edit(req, ID)
+	merr = h.RoleService.Edit(req, ID, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -116,12 +120,13 @@ func (h *RoleHandler) Edit(w http.ResponseWriter, r *http.Request) {
 func (h *RoleHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Param
 	ID := utils.GetID(r)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr := h.RoleService.Delete(ID)
+	merr := h.RoleService.Delete(ID, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)

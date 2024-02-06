@@ -1,6 +1,7 @@
 package dto
 
 import (
+	roleDTO "modular-monolithic/module/v1/role/dto"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,15 +18,18 @@ type Permission struct {
 
 // Request
 type CreatePermissionRequest struct {
-	Name string `json:"name" validate:"required"`
+	RoleID  string   `json:"role_id"`
+	ListAPI []string `json:"list_api"`
 }
 
 type UpdatePermissionRequest struct {
-	Name string `json:"name" validate:"required"`
+	RoleID  string   `json:"role_id"`
+	ListAPI []string `json:"list_api"`
 }
 
 // Response
 type PermissionResponse struct {
-	Name string    `json:"name"`
-	ID   uuid.UUID `json:"id"`
+	Role    *roleDTO.RoleResponse `json:"role,omitempty"`
+	ListAPI []string              `json:"list_api"`
+	ID      uuid.UUID             `json:"id"`
 }

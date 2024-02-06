@@ -22,9 +22,10 @@ type UserHandler struct {
 func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 	// Init carrier
 	h.Carrier.Context = r.Context()
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Init Service
-	resp, merr := h.UserService.List()
+	resp, merr := h.UserService.List(subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -38,12 +39,13 @@ func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) Detail(w http.ResponseWriter, r *http.Request) {
 	// Param
 	ID := utils.GetID(r)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	resp, merr := h.UserService.Detail(ID)
+	resp, merr := h.UserService.Detail(ID, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -58,6 +60,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var (
 		req dto.CreateUserRequest
 	)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Validation
 	merr := mhttp.ValidateRequest(r, &req)
@@ -71,7 +74,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr = h.UserService.Save(req)
+	merr = h.UserService.Save(req, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -85,6 +88,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	// Param
 	ID := utils.GetID(r)
+	subRouterName := utils.GetSubRouterName(r)
 
 	var (
 		req dto.UpdateUserRequest
@@ -102,7 +106,7 @@ func (h *UserHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr = h.UserService.Edit(req, ID)
+	merr = h.UserService.Edit(req, ID, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)
@@ -116,12 +120,13 @@ func (h *UserHandler) Edit(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// Param
 	ID := utils.GetID(r)
+	subRouterName := utils.GetSubRouterName(r)
 
 	// Init carrier
 	h.Carrier.Context = r.Context()
 
 	// Init Service
-	merr := h.UserService.Delete(ID)
+	merr := h.UserService.Delete(ID, subRouterName)
 	if merr.Error != nil {
 		zap.S().Error(merr.Error)
 		mresponse.Failed(w, merr)

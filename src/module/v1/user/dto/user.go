@@ -1,9 +1,8 @@
 package dto
 
 import (
-	"time"
-
 	"modular-monolithic/module/v1/role/dto"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -35,5 +34,13 @@ type UserResponse struct {
 	Role     *dto.RoleResponse `json:"role"`
 	Email    string            `json:"email"`
 	FullName string            `json:"full_name"`
+	ID       uuid.UUID         `json:"id"`
+}
+
+type UserLoginResponse struct {
+	Role     *dto.RoleResponse `json:"role"`
+	Email    string            `json:"email"`
+	FullName string            `json:"full_name"`
+	Password string            `json:"password"`
 	ID       uuid.UUID         `json:"id"`
 }

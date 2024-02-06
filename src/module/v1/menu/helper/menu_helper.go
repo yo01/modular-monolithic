@@ -15,7 +15,9 @@ func PrepareToMenusResponse(data []model.Menu) (resp []dto.MenuResponse) {
 
 		// SET DATA
 		newDetail.ID = detail.ID
-		newDetail.Name = detail.Name
+		if detail.Name != nil {
+			newDetail.Name = *detail.Name
+		}
 
 		resp = append(resp, *newDetail)
 	}
@@ -27,7 +29,9 @@ func PrepareToDetailMenuResponse(data *model.Menu) (resp *dto.MenuResponse) {
 	// CONVERT TO RESPONSE STRUCT
 	resp = new(dto.MenuResponse)
 	resp.ID = data.ID
-	resp.Name = data.Name
+	if data.Name != nil {
+		resp.Name = *data.Name
+	}
 
 	return
 }

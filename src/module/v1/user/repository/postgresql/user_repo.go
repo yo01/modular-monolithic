@@ -15,13 +15,13 @@ import (
 
 type IUserPostgre interface {
 	Select() (resp []model.User, merr merror.Error)
-	SelectByID(id string) (resp *model.User, merr merror.Error)
+	SelectByID(id string) (resp []model.User, merr merror.Error)
 	Insert(data dto.CreateUserRequest) (merr merror.Error)
 	Update(data dto.UpdateUserRequest, id string) (merr merror.Error)
 	Destroy(id string) (merr merror.Error)
 
 	// ADDITIONAL
-	SelectByEmail(email string) (resp *model.User, merr merror.Error)
+	SelectByEmail(email string) (resp []model.User, merr merror.Error)
 }
 
 type userPostgre struct {
@@ -80,8 +80,8 @@ func (r userPostgre) Select() (resp []model.User, merr merror.Error) {
 	return users, merr
 }
 
-func (r userPostgre) SelectByID(id string) (resp *model.User, merr merror.Error) {
-	row, err := r.Carrier.Library.Sqlx.Queryx(SELECT_USER_BY_ID, id)
+func (r userPostgre) SelectByID(id string) (resp []model.User, merr merror.Error) {
+	rows, err := r.Carrier.Library.Sqlx.Queryx(SELECT_USER_BY_ID, id)
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
@@ -89,32 +89,38 @@ func (r userPostgre) SelectByID(id string) (resp *model.User, merr merror.Error)
 			Error: err,
 		}
 	}
-	defer row.Close()
+	defer rows.Close()
 
-	var user model.User
+	var users []model.User
 
-	for row.Next() {
-		if err := row.StructScan(&user); err != nil {
+	for rows.Next() {
+		var user model.User
+		if err := rows.StructScan(&user); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
 				Code:  500,
 				Error: err,
 			}
 		}
+		users = append(users, user)
 	}
 
-	return &user, merr
+	if err := rows.Err(); err != nil {
+		zap.S().Error(err)
+		return nil, merror.Error{
+			Code:  500,
+			Error: err,
+		}
+	}
+
+	return users, merr
 }
 
 func (r userPostgre) Insert(data dto.CreateUserRequest) (merr merror.Error) {
-	// MAIN VARIABLE
-	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
-	authUser := auth.User
-
 	// GENERATE NEW UUID
 	id := uuid.New()
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, INSERT_USER, id, data.Email, &data.Password, data.FullName, data.RoleID, authUser.ID)
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, INSERT_USER, id, data.Email, &data.Password, data.FullName, data.RoleID)
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
@@ -161,8 +167,8 @@ func (r userPostgre) Destroy(id string) (merr merror.Error) {
 }
 
 // ADDITIONAL
-func (r userPostgre) SelectByEmail(email string) (resp *model.User, merr merror.Error) {
-	row, err := r.Carrier.Library.Sqlx.Queryx(SELECT_USER_BY_EMAIL, email)
+func (r userPostgre) SelectByEmail(email string) (resp []model.User, merr merror.Error) {
+	rows, err := r.Carrier.Library.Sqlx.Queryx(SELECT_USER_BY_EMAIL, email)
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
@@ -170,19 +176,29 @@ func (r userPostgre) SelectByEmail(email string) (resp *model.User, merr merror.
 			Error: err,
 		}
 	}
-	defer row.Close()
+	defer rows.Close()
 
-	var user model.User
+	var users []model.User
 
-	for row.Next() {
-		if err := row.StructScan(&user); err != nil {
+	for rows.Next() {
+		var user model.User
+		if err := rows.StructScan(&user); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
 				Code:  500,
 				Error: err,
 			}
 		}
+		users = append(users, user)
 	}
 
-	return &user, merr
+	if err := rows.Err(); err != nil {
+		zap.S().Error(err)
+		return nil, merror.Error{
+			Code:  500,
+			Error: err,
+		}
+	}
+
+	return users, merr
 }

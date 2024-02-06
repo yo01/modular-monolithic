@@ -25,6 +25,6 @@ type UpdateMenuRequest struct {
 
 // Response
 type MenuResponse struct {
-	Name string    `json:"name"`
 	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
 }

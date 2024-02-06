@@ -8,7 +8,6 @@ import (
 
 	"modular-monolithic/config"
 	"modular-monolithic/model"
-	"modular-monolithic/module/v1/role/dto"
 
 	"git.motiolabs.com/library/motiolibs/mresponse"
 	"git.motiolabs.com/library/motiolibs/mtoken"
@@ -52,10 +51,7 @@ func JWT(next http.Handler) http.Handler {
 			User: model.AuthUser{
 				ID:       claims.UserID,
 				FullName: claims.FullName,
-				Role: dto.RoleResponse{
-					ID:   claims.RoleID,
-					Name: claims.RoleName,
-				},
+				Role:     claims.Role,
 			},
 			Token: token,
 		}

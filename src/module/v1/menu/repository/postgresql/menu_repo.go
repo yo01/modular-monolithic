@@ -38,9 +38,7 @@ func (r menuPostgre) Select() (resp []model.Menu, merr merror.Error) {
 
 	// MAIN VARIABLE
 	sqlQuery := SELECT_MENU
-	sqlQuery += utils.BuildQuery(pageRequest, "m", []string{
-		"m.name",
-	})
+	sqlQuery += utils.BuildQuery(pageRequest, "m", nil)
 
 	rows, err := r.Carrier.Library.Sqlx.Queryx(sqlQuery)
 	if err != nil {
@@ -110,12 +108,12 @@ func (r menuPostgre) Insert(data dto.CreateMenuRequest) (merr merror.Error) {
 	// GENERATE NEW UUID
 	id := uuid.New()
 
-	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, INSERT_MENU, id, data.Name, authUser.ID)
-	if row == nil {
-		zap.S().Error(row.Err())
+	_, err := r.Carrier.Library.Sqlx.Queryx(INSERT_MENU, id, data.Name, authUser.ID)
+	if err != nil {
+		zap.S().Error(err)
 		return merror.Error{
 			Code:  500,
-			Error: row.Err(),
+			Error: err,
 		}
 	}
 

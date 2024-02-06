@@ -18,7 +18,7 @@ func TestValidateMenuAccess(t *testing.T) {
 	// Mocking the context value for an admin user
 	adminAuth := &model.Auth{
 		User: model.AuthUser{
-			Role: dto.RoleResponse{
+			Role: &dto.RoleResponse{
 				Name: "admin",
 			},
 		},
@@ -27,7 +27,7 @@ func TestValidateMenuAccess(t *testing.T) {
 	// Mocking the context value for a user without a role
 	otherAuth := &model.Auth{
 		User: model.AuthUser{
-			Role: dto.RoleResponse{
+			Role: &dto.RoleResponse{
 				Name: "member",
 			},
 		},

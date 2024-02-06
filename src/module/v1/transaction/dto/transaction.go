@@ -29,10 +29,8 @@ type UpdateTransactionRequest struct {
 
 // Response
 type TransactionResponse struct {
-	PaymentDate      *time.Time        `json:"payment_date"`
-	PaymentByID      string            `json:"payment_by_id"`
-	InvoiceNumber    string            `json:"invoice_number"`
-	ID               uuid.UUID         `json:"id"`
 	Cart             *dto.CartResponse `json:"cart"`
+	PaymentDate      *time.Time        `json:"payment_date"`
+	ID               uuid.UUID         `json:"id"`
 	IsSuccessPayment bool              `json:"is_success_payment"`
 }

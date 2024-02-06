@@ -44,7 +44,6 @@ func PrepareToDetailTransactionResponse(data *model.Transaction) (resp *dto.Tran
 	}
 	resp.IsSuccessPayment = utils.NullBoolToBool(data.IsSuccessPayment)
 	resp.PaymentDate = data.PaymentDate
-	resp.PaymentByID = data.PaymentByID
 
 	return
 }

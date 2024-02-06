@@ -24,7 +24,7 @@ func InitRoutes(c HandlerConfig) {
 	// USER ROUTES WITHOUT MIDDLEWARE
 	userRoutesWithoutMiddleware := c.R.PathPrefix("/users").Subrouter()
 
-	userRoutesWithoutMiddleware.HandleFunc("", UserHandler.List).Methods(http.MethodGet).Name("user.list")
+	userRoutesWithMiddleware.HandleFunc("", UserHandler.List).Methods(http.MethodGet).Name("user.list")
 	userRoutesWithoutMiddleware.HandleFunc("/{id}", UserHandler.Detail).Methods(http.MethodGet).Name("user.detail")
 	userRoutesWithoutMiddleware.HandleFunc("", UserHandler.Create).Methods(http.MethodPost).Name("user.save")
 }
