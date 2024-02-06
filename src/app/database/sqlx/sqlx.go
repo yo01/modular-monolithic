@@ -6,7 +6,6 @@ import (
 	"git.motiolabs.com/library/motiolibs/msqlx"
 
 	"github.com/jmoiron/sqlx"
-
 	_ "github.com/lib/pq"
 )
 

@@ -17,6 +17,7 @@ func Inject(appConfig app.AppConfig) {
 	// grouping api/v1
 	appConfig.Router = appConfig.Router.PathPrefix("/api/v1").Subrouter()
 
+	// IMPLEMENTATION PAGE REQUEST
 	appConfig.Router.Use(context.PageRequestCtx)
 
 	// user module

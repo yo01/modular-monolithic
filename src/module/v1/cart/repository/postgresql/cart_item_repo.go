@@ -1,8 +1,6 @@
 package postgresql
 
 import (
-	"fmt"
-
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/cart/dto"
 	"modular-monolithic/security/middleware"
@@ -37,33 +35,7 @@ func NewCartItemPostgre(carrier *mcarrier.Carrier) cartItemPostgre {
 func (r cartItemPostgre) Select(pageRequest *model.PageRequest) (resp []model.CartItem, merr merror.Error) {
 	// MAIN VARIABLE
 	sqlQuery := SELECT_CART_ITEM
-	offset := (pageRequest.Page - 1) * pageRequest.PerPage
-
-	for _, filter := range pageRequest.Filters {
-		// Loop through inner map
-		for key, valueMap := range filter {
-			for operator, value := range valueMap {
-				sqlQuery += fmt.Sprintf(" AND %s %s %s", fmt.Sprintf("c.%v", key), operator, utils.GetSQLValue(operator, value))
-			}
-		}
-	}
-
-	if pageRequest.Search != "" {
-		// MAIN VARIABLE
-		fields := []string{}
-
-		sqlQuery += "AND " + utils.BuildSearchCondition(fields, pageRequest.Search) + " "
-	}
-
-	if pageRequest.Sort != "" {
-		sqlQuery += fmt.Sprintf("ORDER BY %v ", fmt.Sprintf("c.%v", pageRequest.Sort))
-	}
-
-	if pageRequest.PerPage != 0 {
-		sqlQuery += fmt.Sprintf("LIMIT %v ", pageRequest.PerPage)
-	}
-
-	sqlQuery += fmt.Sprintf("OFFSET %v ", offset)
+	sqlQuery += utils.BuildQuery(pageRequest, "c", nil)
 
 	rows, err := r.Carrier.Library.Sqlx.Queryx(sqlQuery)
 	if err != nil {

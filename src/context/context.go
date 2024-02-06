@@ -13,14 +13,14 @@ import (
 
 func PageRequestCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		pageRequest := parsePageRequest(r.URL.Query())
+		pageRequest := ParsePageRequest(r.URL.Query())
 
 		ctx := context.WithValue(r.Context(), middleware.PageRequestCtxKey, pageRequest)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-func parsePageRequest(query url.Values) *model.PageRequest {
+func ParsePageRequest(query url.Values) *model.PageRequest {
 	pageRequest := &model.PageRequest{
 		Filters:  make([]map[string]map[string]interface{}, 0),
 		Sort:     "",
