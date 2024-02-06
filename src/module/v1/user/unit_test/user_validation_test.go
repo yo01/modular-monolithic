@@ -62,7 +62,10 @@ func TestValidateMenuAccess(t *testing.T) {
 			}
 
 			// Calling the function under test
-			result := validation.ValidateUserAccess(mockContext, "", nil)
+			result := validation.ValidateUserAccess(mockContext, "user.save", []string{
+				"user.save",
+				"role.save",
+			})
 
 			// Asserting the result
 			if result.Code != tt.expectedResult.Code && result.Error != tt.expectedResult.Error {
