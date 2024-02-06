@@ -42,14 +42,14 @@ const (
 
 	SELECT_CART_BY_USER_LOGIN = `
 		SELECT * FROM "cart" c
-			JOIN cart_item ON cart_item.cart_id = c.id
+			LEFT JOIN cart_item ON cart_item.cart_id = c.id
 		WHERE c.user_id = $1 AND c.deleted_at IS NULL
 	`
 
 	SELECT_ONE_CART_BY_ID = `
 		SELECT c.id, c.user_id, cart_item.id as cart_item_id,p.id as product_id, p.name as product_name FROM "cart" c  
-			JOIN cart_item ON cart_item.cart_id = c.id
-			JOIN product p ON cart_item.product_id = p.id
+			LEFT JOIN cart_item ON cart_item.cart_id = c.id
+			LEFT JOIN product p ON cart_item.product_id = p.id
 		WHERE c.id = $1 AND cart_item.id = $2 AND c.deleted_at IS NULL
 	`
 )
