@@ -19,8 +19,8 @@ type AuthUser struct {
 
 type Claims struct {
 	Role       *dto.RoleResponse `json:"role"`
-	UserID     uuid.UUID         `json:"user_id"`
 	Email      string            `json:"email"`
 	FullName   string            `json:"full_name"`
+	UserID     uuid.UUID         `json:"user_id"`
 	Authorized bool              `json:"autorized"`
 }

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"net/http"
+
 	"modular-monolithic/config"
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/auth/dto"
@@ -53,7 +55,7 @@ func (s *AuthService) SignIn(req dto.LoginRequest) (resp *dto.LoginResponse, mer
 	if err := helper.VerifyPassword(userResponse.Password, req.Password); err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		zap.S().Error(err.Error())
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}

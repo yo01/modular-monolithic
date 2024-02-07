@@ -2,6 +2,8 @@ package service
 
 import (
 	"fmt"
+	"net/http"
+
 	permissionRepository "modular-monolithic/module/v1/permission/repository"
 	roleRepository "modular-monolithic/module/v1/role/repository"
 	"modular-monolithic/module/v1/user/dto"
@@ -63,7 +65,7 @@ func (s *UserService) Detail(id, subRouterName string) (resp *dto.UserResponse, 
 		err := fmt.Errorf("user with id %s is not found", id)
 		zap.S().Error(err)
 		return resp, merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}
@@ -78,7 +80,7 @@ func (s *UserService) Save(req dto.CreateUserRequest, subRouterName string) (mer
 		err := fmt.Errorf("user with email %v is already exist", req.Email)
 		zap.S().Error(err.Error)
 		return merror.Error{
-			Code:  409,
+			Code:  http.StatusConflict,
 			Error: err,
 		}
 	}
@@ -89,7 +91,7 @@ func (s *UserService) Save(req dto.CreateUserRequest, subRouterName string) (mer
 		err := fmt.Errorf("role with id %v is not found", req.RoleID.String())
 		zap.S().Error(err.Error)
 		return merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}

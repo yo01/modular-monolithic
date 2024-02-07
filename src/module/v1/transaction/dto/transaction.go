@@ -12,10 +12,10 @@ type Transaction struct {
 	DeletedAt *time.Time
 	CreatedAt time.Time
 	Name      string
-	ID        uuid.UUID
 	ProductID uuid.UUID
 	UserID    uuid.UUID
 	CartID    uuid.UUID
+	ID        uuid.UUID
 }
 
 // Request

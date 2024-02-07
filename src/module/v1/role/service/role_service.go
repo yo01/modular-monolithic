@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"net/http"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
@@ -15,7 +16,6 @@ import (
 	"modular-monolithic/module/v1/role/dto"
 	"modular-monolithic/module/v1/role/helper"
 	roleRepository "modular-monolithic/module/v1/role/repository"
-	"modular-monolithic/module/v1/role/validation"
 	"modular-monolithic/security/middleware"
 )
 
@@ -59,7 +59,7 @@ func (s *RoleService) List(subRouterName string) (resp []dto.RoleResponse, merr 
 		}
 
 		// VALIDATION ACCESS
-		if err := validation.ValidateRoleAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+		if err := middleware.ValidateAccess(s.Carrier, "", subRouterName, permission.ListAPI); err.Error != nil {
 			zap.S().Error(err.Error)
 			return resp, err
 		}
@@ -89,7 +89,7 @@ func (s *RoleService) Detail(id, subRouterName string) (resp *dto.RoleResponse, 
 		}
 
 		// VALIDATION ACCESS
-		if err := validation.ValidateRoleAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+		if err := middleware.ValidateAccess(s.Carrier, "", subRouterName, permission.ListAPI); err.Error != nil {
 			zap.S().Error(err.Error)
 			return resp, err
 		}
@@ -103,7 +103,7 @@ func (s *RoleService) Detail(id, subRouterName string) (resp *dto.RoleResponse, 
 		err := fmt.Errorf("role with id %v is not found", id)
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}
@@ -121,7 +121,7 @@ func (s *RoleService) Save(req dto.CreateRoleRequest, subRouterName string) (mer
 		err := fmt.Errorf("role with name %v is already exist", req.Name)
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  409,
+			Code:  http.StatusConflict,
 			Error: err,
 		}
 	}
@@ -137,7 +137,7 @@ func (s *RoleService) Save(req dto.CreateRoleRequest, subRouterName string) (mer
 		}
 
 		// VALIDATION ACCESS
-		if err := validation.ValidateRoleAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+		if err := middleware.ValidateAccess(s.Carrier, "", subRouterName, permission.ListAPI); err.Error != nil {
 			zap.S().Error(err.Error)
 			return err
 		}
@@ -163,7 +163,7 @@ func (s *RoleService) Edit(req dto.UpdateRoleRequest, id, subRouterName string) 
 	}
 
 	// VALIDATION ACCESS
-	if err := validation.ValidateRoleAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, "", subRouterName, permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}
@@ -173,7 +173,7 @@ func (s *RoleService) Edit(req dto.UpdateRoleRequest, id, subRouterName string) 
 		err := fmt.Errorf("role with id %v is not found", id)
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}
@@ -198,7 +198,7 @@ func (s *RoleService) Delete(id, subRouterName string) (merr merror.Error) {
 	}
 
 	// VALIDATION ACCESS
-	if err := validation.ValidateRoleAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, "", subRouterName, permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}
@@ -208,7 +208,7 @@ func (s *RoleService) Delete(id, subRouterName string) (merr merror.Error) {
 		err := fmt.Errorf("role with id %v is not found", id)
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}

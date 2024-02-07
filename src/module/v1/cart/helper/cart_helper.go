@@ -25,8 +25,9 @@ func PrepareToCartsResponse(data []model.Cart) (resp []dto.CartResponse) {
 		} else {
 			// Add new item if id does not exist
 			newItem := &dto.CartResponse{
-				ID:     item.ID,
-				UserID: item.UserID,
+				ID:        item.ID,
+				UserID:    item.UserID,
+				IsSuccess: item.IsSuccess,
 			}
 
 			if item.CartItemID != uuid.Nil {
@@ -56,6 +57,7 @@ func PrepareToDetailCartResponse(data []model.Cart) (resp *dto.CartResponse) {
 	for _, x := range data {
 		resp.ID = x.ID
 		resp.UserID = x.UserID
+		resp.IsSuccess = x.IsSuccess
 		if x.CartItemID != uuid.Nil {
 			resp.CartItem = append(resp.CartItem, dto.CartItemReference{
 				ID:          x.CartItemID,

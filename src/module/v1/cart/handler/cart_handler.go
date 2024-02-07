@@ -57,7 +57,7 @@ func (h *CartHandler) Detail(w http.ResponseWriter, r *http.Request) {
 		err := fmt.Errorf("cart with id %v is not found", ID)
 		zap.S().Error(err)
 		mresponse.Failed(w, merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		})
 		return

@@ -2,12 +2,12 @@ package service
 
 import (
 	"fmt"
+	"net/http"
 
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/menu/dto"
 	"modular-monolithic/module/v1/menu/helper"
 	menuRepository "modular-monolithic/module/v1/menu/repository"
-	"modular-monolithic/module/v1/menu/validation"
 	permissionRepository "modular-monolithic/module/v1/permission/repository"
 	"modular-monolithic/security/middleware"
 
@@ -56,7 +56,7 @@ func (s *MenuService) List(subRouterName string) (resp []dto.MenuResponse, merr 
 	}
 
 	// VALIDATION ACCESS
-	if err := validation.ValidateMenuAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, "", "", permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err
 	}
@@ -82,7 +82,7 @@ func (s *MenuService) Detail(id, subRouterName string) (resp *dto.MenuResponse, 
 	}
 
 	// VALIDATION ACCESS
-	if err := validation.ValidateMenuAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, "", "", permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err
 	}
@@ -95,7 +95,7 @@ func (s *MenuService) Detail(id, subRouterName string) (resp *dto.MenuResponse, 
 		err := fmt.Errorf("menu with id %v is not found", id)
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}
@@ -115,7 +115,7 @@ func (s *MenuService) Save(req dto.CreateMenuRequest, subRouterName string) (mer
 	}
 
 	// VALIDATION ACCESS
-	if err := validation.ValidateMenuAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, "", "", permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}
@@ -140,7 +140,7 @@ func (s *MenuService) Edit(req dto.UpdateMenuRequest, id, subRouterName string) 
 	}
 
 	// VALIDATION ACCESS
-	if err := validation.ValidateMenuAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, "", "", permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}
@@ -150,7 +150,7 @@ func (s *MenuService) Edit(req dto.UpdateMenuRequest, id, subRouterName string) 
 		err := fmt.Errorf("menu with id %v is not found", id)
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}
@@ -175,7 +175,7 @@ func (s *MenuService) Delete(id, subRouterName string) (merr merror.Error) {
 	}
 
 	// VALIDATION ACCESS
-	if err := validation.ValidateMenuAccess(s.Carrier, subRouterName, permission.ListAPI); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, "", "", permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}
@@ -185,7 +185,7 @@ func (s *MenuService) Delete(id, subRouterName string) (merr merror.Error) {
 		err := fmt.Errorf("menu with id %v is not found", id)
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}

@@ -1,6 +1,8 @@
 package postgresql
 
 import (
+	"net/http"
+
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/cart/dto"
 	"modular-monolithic/security/middleware"
@@ -20,7 +22,9 @@ type ICartPostgre interface {
 	Update(data dto.UpdateCartRequest, id string) (merr merror.Error)
 	Destroy(id string) (merr merror.Error)
 
+	// ADDITIONAL
 	SelectOneByID(id string) (resp *model.Cart, merr merror.Error)
+	UpdateFlagIsSuccess(isSuccess bool, id string) (merr merror.Error)
 }
 
 type cartPostgre struct {
@@ -47,7 +51,7 @@ func (r cartPostgre) Select() (resp []model.Cart, merr merror.Error) {
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -60,7 +64,7 @@ func (r cartPostgre) Select() (resp []model.Cart, merr merror.Error) {
 		if err := rows.StructScan(&cart); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -70,7 +74,7 @@ func (r cartPostgre) Select() (resp []model.Cart, merr merror.Error) {
 	if err := rows.Err(); err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -83,7 +87,7 @@ func (r cartPostgre) SelectByID(id string) (resp []model.Cart, merr merror.Error
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -96,7 +100,7 @@ func (r cartPostgre) SelectByID(id string) (resp []model.Cart, merr merror.Error
 		if err := rows.StructScan(&cart); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -106,7 +110,7 @@ func (r cartPostgre) SelectByID(id string) (resp []model.Cart, merr merror.Error
 	if err := rows.Err(); err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -119,7 +123,7 @@ func (r cartPostgre) SelectOneByID(id string) (resp *model.Cart, merr merror.Err
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -131,7 +135,7 @@ func (r cartPostgre) SelectOneByID(id string) (resp *model.Cart, merr merror.Err
 		if err := rows.StructScan(&cart); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -140,7 +144,7 @@ func (r cartPostgre) SelectOneByID(id string) (resp *model.Cart, merr merror.Err
 	if err := rows.Err(); err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -158,7 +162,7 @@ func (r cartPostgre) Insert(data dto.CreateCartRequest) (resp *model.Cart, merr 
 	if err != nil {
 		zap.S().Error(err)
 		return resp, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -170,7 +174,7 @@ func (r cartPostgre) Insert(data dto.CreateCartRequest) (resp *model.Cart, merr 
 		if err := row.StructScan(&cart); err != nil {
 			zap.S().Error(err)
 			return resp, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -188,7 +192,7 @@ func (r cartPostgre) Update(data dto.UpdateCartRequest, id string) (merr merror.
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}
@@ -205,7 +209,25 @@ func (r cartPostgre) Destroy(id string) (merr merror.Error) {
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
+			Error: row.Err(),
+		}
+	}
+
+	return merr
+}
+
+// ADDITIONAL
+func (r cartPostgre) UpdateFlagIsSuccess(isSuccess bool, id string) (merr merror.Error) {
+	// MAIN VARIABLE
+	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
+	authUser := auth.User
+
+	row := r.Carrier.Library.Sqlx.QueryRowxContext(r.Carrier.Context, UPDATE_CART_IS_SUCCESS, id, isSuccess, authUser.ID)
+	if row == nil {
+		zap.S().Error(row.Err())
+		return merror.Error{
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}

@@ -2,6 +2,8 @@ package service
 
 import (
 	"fmt"
+	"net/http"
+
 	"modular-monolithic/module/v1/cart/dto"
 	"modular-monolithic/module/v1/cart/helper"
 	cartRepository "modular-monolithic/module/v1/cart/repository"
@@ -53,7 +55,7 @@ func (s *CartService) Detail(id string) (resp *dto.CartResponse, merr merror.Err
 		err := fmt.Errorf("cart with id %s is not found", id)
 		zap.S().Error(err)
 		return resp, merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}

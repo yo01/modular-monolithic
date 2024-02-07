@@ -5,6 +5,7 @@ import (
 	"modular-monolithic/module/v1/menu/dto"
 	"modular-monolithic/security/middleware"
 	"modular-monolithic/utils"
+	"net/http"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
@@ -44,7 +45,7 @@ func (r menuPostgre) Select() (resp []model.Menu, merr merror.Error) {
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -57,7 +58,7 @@ func (r menuPostgre) Select() (resp []model.Menu, merr merror.Error) {
 		if err := rows.StructScan(&menu); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -79,7 +80,7 @@ func (r menuPostgre) SelectByID(id string) (resp *model.Menu, merr merror.Error)
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -91,7 +92,7 @@ func (r menuPostgre) SelectByID(id string) (resp *model.Menu, merr merror.Error)
 		if err := row.StructScan(&menu); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -112,7 +113,7 @@ func (r menuPostgre) Insert(data dto.CreateMenuRequest) (merr merror.Error) {
 	if err != nil {
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -129,7 +130,7 @@ func (r menuPostgre) Update(data dto.UpdateMenuRequest, id string) (merr merror.
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}
@@ -146,7 +147,7 @@ func (r menuPostgre) Destroy(id string) (merr merror.Error) {
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}

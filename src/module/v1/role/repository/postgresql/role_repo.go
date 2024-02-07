@@ -1,6 +1,8 @@
 package postgresql
 
 import (
+	"net/http"
+
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/role/dto"
 	"modular-monolithic/security/middleware"
@@ -48,7 +50,7 @@ func (r rolePostgre) Select() (resp []model.Role, merr merror.Error) {
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -61,7 +63,7 @@ func (r rolePostgre) Select() (resp []model.Role, merr merror.Error) {
 		if err := rows.StructScan(&role); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -71,7 +73,7 @@ func (r rolePostgre) Select() (resp []model.Role, merr merror.Error) {
 	if err := rows.Err(); err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -84,7 +86,7 @@ func (r rolePostgre) SelectByID(id string) (resp *model.Role, merr merror.Error)
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -96,7 +98,7 @@ func (r rolePostgre) SelectByID(id string) (resp *model.Role, merr merror.Error)
 		if err := row.StructScan(&role); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -113,7 +115,7 @@ func (r rolePostgre) Insert(data dto.CreateRoleRequest) (merr merror.Error) {
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}
@@ -130,7 +132,7 @@ func (r rolePostgre) Update(data dto.UpdateRoleRequest, id string) (merr merror.
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}
@@ -147,7 +149,7 @@ func (r rolePostgre) Destroy(id string) (merr merror.Error) {
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}
@@ -160,7 +162,7 @@ func (r rolePostgre) SelectByName(name string) (resp *model.Role, merr merror.Er
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -172,7 +174,7 @@ func (r rolePostgre) SelectByName(name string) (resp *model.Role, merr merror.Er
 		if err := row.StructScan(&role); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}

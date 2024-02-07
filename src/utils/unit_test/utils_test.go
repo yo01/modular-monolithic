@@ -1,7 +1,6 @@
 package unit_test
 
 import (
-	"database/sql"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -40,26 +39,6 @@ func TestGetSubRouterName(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
-}
-
-func TestNullBoolToBool(t *testing.T) {
-	// Test with a valid bool value
-	nb := sql.NullBool{
-		Bool:  true,
-		Valid: true,
-	}
-
-	result := utils.NullBoolToBool(nb)
-	assert.Equal(t, true, result)
-
-	// Test with a NULL bool value
-	nb = sql.NullBool{
-		Bool:  false,
-		Valid: false,
-	}
-
-	result = utils.NullBoolToBool(nb)
-	assert.Equal(t, false, result)
 }
 
 func TestParseStringToUUID(t *testing.T) {

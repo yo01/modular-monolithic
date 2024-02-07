@@ -1,6 +1,9 @@
 package postgresql
 
 import (
+	"net/http"
+
+	"modular-monolithic/constant"
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/transaction/dto"
 	"modular-monolithic/security/middleware"
@@ -12,11 +15,12 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 )
 
 type ITransactionPostgre interface {
 	Select() (resp []model.Transaction, merr merror.Error)
-	SelectByID(id string) (resp *model.Transaction, merr merror.Error)
+	SelectByID(id string) (resp []model.Transaction, merr merror.Error)
 	Insert(data dto.CreateTransactionRequest) (merr merror.Error)
 	Update(data dto.UpdateTransactionRequest, id string) (merr merror.Error)
 	Destroy(id string) (merr merror.Error)
@@ -38,19 +42,76 @@ func NewTransactionPostgre(carrier *mcarrier.Carrier) transactionPostgre {
 func (r transactionPostgre) Select() (resp []model.Transaction, merr merror.Error) {
 	// GET DATA FROM CONTEXT MIDDLEWARE
 	pageRequest := r.Carrier.Context.Value(middleware.PageRequestCtxKey).(*model.PageRequest)
+	auth := r.Carrier.Context.Value(middleware.AuthUserCtxKey).(*model.Auth)
 
 	// MAIN VARIABLE
-	sqlQuery := SELECT_TRANSACTION
+	sqlQuery := ""
+	var rows *sqlx.Rows
+
 	sqlQuery += utils.BuildQuery(pageRequest, "t", []string{
 		"t.is_success_payment",
 		"t.invoice_number",
 	})
 
-	rows, err := r.Carrier.Library.Sqlx.Queryx(sqlQuery)
+	if auth.User.Role.Name == constant.RoleAdmin {
+		sqlQuery = SELECT_TRANSACTION_ADMIN
+
+		result, err := r.Carrier.Library.Sqlx.Queryx(sqlQuery)
+		if err != nil {
+			zap.S().Error(err)
+			return nil, merror.Error{
+				Code:  http.StatusInternalServerError,
+				Error: err,
+			}
+		}
+		rows = result
+		defer rows.Close()
+	} else if auth.User.Role.Name == constant.RoleLearner {
+		sqlQuery = SELECT_TRANSACTION_LEARNER
+
+		result, err := r.Carrier.Library.Sqlx.Queryx(sqlQuery, auth.User.ID)
+		if err != nil {
+			zap.S().Error(err)
+			return nil, merror.Error{
+				Code:  http.StatusInternalServerError,
+				Error: err,
+			}
+		}
+		rows = result
+		defer rows.Close()
+	}
+
+	var transactions []model.Transaction
+
+	for rows.Next() {
+		var transaction model.Transaction
+		if err := rows.StructScan(&transaction); err != nil {
+			zap.S().Error(err)
+			return nil, merror.Error{
+				Code:  http.StatusInternalServerError,
+				Error: err,
+			}
+		}
+		transactions = append(transactions, transaction)
+	}
+
+	if err := rows.Err(); err != nil {
+		zap.S().Error(err)
+		return nil, merror.Error{
+			Code:  http.StatusInternalServerError,
+			Error: err,
+		}
+	}
+
+	return transactions, merr
+}
+
+func (r transactionPostgre) SelectByID(id string) (resp []model.Transaction, merr merror.Error) {
+	rows, err := r.Carrier.Library.Sqlx.Queryx(SELECT_TRANSACTION_BY_ID, id)
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -63,7 +124,7 @@ func (r transactionPostgre) Select() (resp []model.Transaction, merr merror.Erro
 		if err := rows.StructScan(&transaction); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -73,38 +134,12 @@ func (r transactionPostgre) Select() (resp []model.Transaction, merr merror.Erro
 	if err := rows.Err(); err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
 
 	return transactions, merr
-}
-
-func (r transactionPostgre) SelectByID(id string) (resp *model.Transaction, merr merror.Error) {
-	row, err := r.Carrier.Library.Sqlx.Queryx(SELECT_TRANSACTION_BY_ID, id)
-	if err != nil {
-		zap.S().Error(err)
-		return nil, merror.Error{
-			Code:  500,
-			Error: err,
-		}
-	}
-	defer row.Close()
-
-	var transaction model.Transaction
-
-	for row.Next() {
-		if err := row.StructScan(&transaction); err != nil {
-			zap.S().Error(err)
-			return nil, merror.Error{
-				Code:  500,
-				Error: err,
-			}
-		}
-	}
-
-	return &transaction, merr
 }
 
 func (r transactionPostgre) Insert(data dto.CreateTransactionRequest) (merr merror.Error) {
@@ -120,7 +155,7 @@ func (r transactionPostgre) Insert(data dto.CreateTransactionRequest) (merr merr
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}
@@ -137,7 +172,7 @@ func (r transactionPostgre) Update(data dto.UpdateTransactionRequest, id string)
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}
@@ -154,7 +189,7 @@ func (r transactionPostgre) Destroy(id string) (merr merror.Error) {
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}

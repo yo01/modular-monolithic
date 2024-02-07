@@ -1,16 +1,13 @@
 package postgresql
 
 const (
-	SELECT_TRANSACTION = `
-		SELECT t.id, t.is_success_payment, t.payment_date, t.created_at, t.deleted_at, cart.id as cart_id, cart.user_id as cart_user_id FROM "transaction" t
-			LEFT JOIN cart ON t.cart_id = cart.id 
+	SELECT_TRANSACTION_ADMIN = `
+		SELECT t.id, t.is_success_payment, t.payment_date, t.created_at, t.deleted_at, cart.id as cart_id, cart.user_id as cart_user_id, cart.is_success as cart_is_success, cart_item.id as cart_item_id, cart_item.product_id as cart_item_product_id, product.name as product_name FROM "transaction" t
+			LEFT JOIN cart ON t.cart_id = cart.id
+			LEFT JOIN cart_item ON t.cart_id = cart_item.cart_id
+			LEFT JOIN product ON cart_item.product_id = product.id
 		WHERE t.deleted_at IS NULL
-	`
-
-	SELECT_TRANSACTION_BY_ID = `
-		SELECT t.id, t.is_success_payment, t.payment_date, t.created_at, t.deleted_at, cart.id as cart_id, cart.user_id as cart_user_id FROM "transaction" t 
-			LEFT JOIN cart ON t.cart_id = cart.id 
-		WHERE t.id = $1 AND t.deleted_at IS NULL
+		ORDER BY t.created_at desc LIMIT 10 OFFSET 0
 	`
 
 	INSERT_TRANSACTION = `
@@ -38,9 +35,27 @@ const (
 	`
 
 	// ADDITIONAL
+	SELECT_TRANSACTION_BY_ID = `
+		SELECT t.id, t.is_success_payment, t.payment_date, t.created_at, t.deleted_at, cart.id as cart_id, cart.user_id as cart_user_id,  cart.is_success as cart_is_success, cart_item.id as cart_item_id, cart_item.product_id as cart_item_product_id, product.name as product_name FROM "transaction" t
+			LEFT JOIN cart ON t.cart_id = cart.id
+			LEFT JOIN cart_item ON t.cart_id = cart_item.cart_id
+			LEFT JOIN product ON cart_item.product_id = product.id
+		WHERE t.deleted_at IS NULL AND t.id = $1
+		ORDER BY t.created_at desc LIMIT 10 OFFSET 0
+	`
+
 	UPDATE_TRANSACTION_PAYMENT = `
 		UPDATE "transaction"
 			SET ("is_success_payment", "payment_date", "invoice_number", "updated_at", "updated_by_id") = ($2, $3, NOW(), NOW(), $4)
 		WHERE id = $1
+	`
+
+	SELECT_TRANSACTION_LEARNER = `
+		SELECT t.id, t.is_success_payment, t.payment_date, t.created_at, t.deleted_at, cart.id as cart_id, cart.user_id as cart_user_id,  cart.is_success as cart_is_success, cart_item.id as cart_item_id, cart_item.product_id as cart_item_product_id, product.name as product_name FROM "transaction" t
+			LEFT JOIN cart ON t.cart_id = cart.id
+			LEFT JOIN cart_item ON t.cart_id = cart_item.cart_id
+			LEFT JOIN product ON cart_item.product_id = product.id
+		WHERE t.deleted_at IS NULL AND cart.user_id = $1
+		ORDER BY t.created_at desc LIMIT 10 OFFSET 0
 	`
 )

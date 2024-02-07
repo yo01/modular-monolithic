@@ -2,14 +2,14 @@ package postgresql
 
 const (
 	SELECT_CART = `
-		SELECT c.id, c.user_id, c.created_at, cart_item.id as cart_item_id,p.id as product_id, p.name as product_name FROM "cart" c  
+		SELECT c.id, c.user_id, c.is_success, c.created_at, cart_item.id as cart_item_id,p.id as product_id, p.name as product_name FROM "cart" c  
 			LEFT JOIN cart_item ON cart_item.cart_id = c.id
 			LEFT JOIN product p ON cart_item.product_id = p.id
 		WHERE c.deleted_at IS NULL
 	`
 
 	SELECT_CART_BY_ID = `
-		SELECT c.id, c.user_id, cart_item.id as cart_item_id,p.id as product_id, p.name as product_name FROM "cart" c  
+		SELECT c.id, c.user_id, c.is_success, cart_item.id as cart_item_id,p.id as product_id, p.name as product_name FROM "cart" c  
 			LEFT JOIN cart_item ON cart_item.cart_id = c.id
 			LEFT JOIN product p ON cart_item.product_id = p.id
 		WHERE c.id = $1 AND c.deleted_at IS NULL
@@ -40,6 +40,7 @@ const (
 		WHERE id = $1
 	`
 
+	// ADDITIONAL
 	SELECT_CART_BY_USER_LOGIN = `
 		SELECT * FROM "cart" c
 			LEFT JOIN cart_item ON cart_item.cart_id = c.id
@@ -47,9 +48,15 @@ const (
 	`
 
 	SELECT_ONE_CART_BY_ID = `
-		SELECT c.id, c.user_id, cart_item.id as cart_item_id,p.id as product_id, p.name as product_name FROM "cart" c  
+		SELECT c.id, c.user_id, c.is_success, cart_item.id as cart_item_id,p.id as product_id, p.name as product_name FROM "cart" c  
 			LEFT JOIN cart_item ON cart_item.cart_id = c.id
 			LEFT JOIN product p ON cart_item.product_id = p.id
 		WHERE c.id = $1 AND cart_item.id = $2 AND c.deleted_at IS NULL
+	`
+
+	UPDATE_CART_IS_SUCCESS = `
+		UPDATE "cart"
+			SET ("is_success", "updated_at", "updated_by_id") = ($2, NOW(), $3)
+		WHERE id = $1 
 	`
 )

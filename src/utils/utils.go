@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -22,16 +21,6 @@ func GetSubRouterName(r *http.Request) (subRouterName string) {
 	subRouterName = vars.GetName()
 
 	return
-}
-
-func NullBoolToBool(nb sql.NullBool) bool {
-	// Check if the value is valid
-	if nb.Valid {
-		return nb.Bool
-	}
-
-	// Decide on a default value when the value is NULL
-	return false // You can choose any default value
 }
 
 func ParseStringToUUID(value string) (resp uuid.UUID) {

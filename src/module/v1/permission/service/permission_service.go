@@ -2,12 +2,14 @@ package service
 
 import (
 	"fmt"
+	"net/http"
 
+	"modular-monolithic/constant"
 	"modular-monolithic/module/v1/permission/dto"
 	"modular-monolithic/module/v1/permission/helper"
 	permissionRepository "modular-monolithic/module/v1/permission/repository"
-	"modular-monolithic/module/v1/permission/validation"
 	roleRepository "modular-monolithic/module/v1/role/repository"
+	"modular-monolithic/security/middleware"
 
 	"git.motiolabs.com/library/motiolibs/mcarrier"
 	"git.motiolabs.com/library/motiolibs/merror"
@@ -44,7 +46,7 @@ func NewRoleService(carrier *mcarrier.Carrier) IPermissionService {
 
 func (s *PermissionService) List() (resp []dto.PermissionResponse, merr merror.Error) {
 	// VALIDATION ACCESS
-	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, constant.AccessTypePermission, "", nil); err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err
 	}
@@ -60,7 +62,7 @@ func (s *PermissionService) List() (resp []dto.PermissionResponse, merr merror.E
 
 func (s *PermissionService) Detail(id string) (resp *dto.PermissionResponse, merr merror.Error) {
 	// VALIDATION ACCESS
-	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, constant.AccessTypePermission, "", nil); err.Error != nil {
 		zap.S().Error(err.Error)
 		return resp, err
 	}
@@ -73,7 +75,7 @@ func (s *PermissionService) Detail(id string) (resp *dto.PermissionResponse, mer
 		err := fmt.Errorf("permission with id %v is not found", id)
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}
@@ -82,19 +84,35 @@ func (s *PermissionService) Detail(id string) (resp *dto.PermissionResponse, mer
 }
 
 func (s *PermissionService) Save(req dto.CreatePermissionRequest) (merr merror.Error) {
+	// VALIDATION ACCESS
+	if err := middleware.ValidateAccess(s.Carrier, constant.AccessTypePermission, "", nil); err.Error != nil {
+		zap.S().Error(err.Error)
+		return err
+	}
+
+	exist, _ := s.PermissionRepository.PermissionPostgre.SelectByRoleID(req.RoleID)
+	if exist != nil && exist.ID != uuid.Nil {
+		err := fmt.Errorf("permission with role id %s is already exist", req.RoleID)
+		zap.S().Error(err)
+		return merror.Error{
+			Code:  http.StatusConflict,
+			Error: err,
+		}
+	}
+
 	// CHECK ROLE IS EXIST OR NOT
 	role, _ := s.RoleRepository.RolePostgre.SelectByID(req.RoleID)
 	if role.ID == uuid.Nil {
 		err := fmt.Errorf("role with id %s is not found", req.RoleID)
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}
 
 	// VALIDATION ACCESS
-	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, constant.AccessTypePermission, "", nil); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}
@@ -114,13 +132,13 @@ func (s *PermissionService) Edit(req dto.UpdatePermissionRequest, id string) (me
 		err := fmt.Errorf("role with id %s is not found", req.RoleID)
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}
 
 	// VALIDATION ACCESS
-	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, constant.AccessTypePermission, "", nil); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}
@@ -130,7 +148,7 @@ func (s *PermissionService) Edit(req dto.UpdatePermissionRequest, id string) (me
 		err := fmt.Errorf("permission with id %v is not found", id)
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}
@@ -145,7 +163,7 @@ func (s *PermissionService) Edit(req dto.UpdatePermissionRequest, id string) (me
 
 func (s *PermissionService) Delete(id string) (merr merror.Error) {
 	// VALIDATION ACCESS
-	if err := validation.ValidatePermissionAccess(s.Carrier); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, constant.AccessTypePermission, "", nil); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}
@@ -155,7 +173,7 @@ func (s *PermissionService) Delete(id string) (merr merror.Error) {
 		err := fmt.Errorf("permission with id %v is not found", id)
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  404,
+			Code:  http.StatusNotFound,
 			Error: err,
 		}
 	}

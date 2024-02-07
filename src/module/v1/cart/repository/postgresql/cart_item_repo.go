@@ -1,6 +1,8 @@
 package postgresql
 
 import (
+	"net/http"
+
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/cart/dto"
 	"modular-monolithic/security/middleware"
@@ -41,7 +43,7 @@ func (r cartItemPostgre) Select(pageRequest *model.PageRequest) (resp []model.Ca
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -54,7 +56,7 @@ func (r cartItemPostgre) Select(pageRequest *model.PageRequest) (resp []model.Ca
 		if err := rows.StructScan(&cartItem); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -64,7 +66,7 @@ func (r cartItemPostgre) Select(pageRequest *model.PageRequest) (resp []model.Ca
 	if err := rows.Err(); err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -77,7 +79,7 @@ func (r cartItemPostgre) SelectByID(id string) (resp *model.CartItem, merr merro
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -89,7 +91,7 @@ func (r cartItemPostgre) SelectByID(id string) (resp *model.CartItem, merr merro
 		if err := row.StructScan(&cartItem); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -111,7 +113,7 @@ func (r cartItemPostgre) Insert(data dto.CreateCartItemRequest) (merr merror.Err
 	if _, err := r.Carrier.Library.Sqlx.Queryx(INSERT_CART_ITEM, id, cartUUID, productUUID, authUser.ID); err != nil {
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -128,7 +130,7 @@ func (r cartItemPostgre) Update(data dto.UpdateCartItemRequest, id, cartID strin
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}
@@ -145,7 +147,7 @@ func (r cartItemPostgre) Destroy(cartID string) (merr merror.Error) {
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}

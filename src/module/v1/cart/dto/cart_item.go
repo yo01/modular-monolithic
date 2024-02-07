@@ -27,7 +27,7 @@ type UpdateCartItemRequest struct {
 
 // Response
 type CartItemResponse struct {
-	ID        uuid.UUID `json:"id"`
 	CartID    uuid.UUID `json:"cart_id"`
 	ProductID uuid.UUID `json:"product_id"`
+	ID        uuid.UUID `json:"id"`
 }

@@ -23,19 +23,21 @@ type CreateCartRequest struct {
 type UpdateCartRequest struct {
 	ProductID  string `json:"product_id" validate:"required"`
 	CartItemID string `json:"cart_item_id" validate:"required"`
+	IsSuccess  bool   `json:"is_success"`
 }
 
 // Response
 type (
 	CartResponse struct {
-		CartItem []CartItemReference `json:"cart_item"`
-		ID       uuid.UUID           `json:"id"`
-		UserID   uuid.UUID           `json:"user_id"`
+		CartItem  []CartItemReference `json:"cart_item"`
+		UserID    uuid.UUID           `json:"user_id"`
+		ID        uuid.UUID           `json:"id"`
+		IsSuccess bool                `json:"is_success"`
 	}
 
 	CartItemReference struct {
 		ProductName *string   `json:"product_name"`
-		ID          uuid.UUID `json:"id"`
 		ProductID   uuid.UUID `json:"product_id"`
+		ID          uuid.UUID `json:"id"`
 	}
 )

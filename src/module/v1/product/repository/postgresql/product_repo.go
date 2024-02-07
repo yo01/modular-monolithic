@@ -1,6 +1,8 @@
 package postgresql
 
 import (
+	"net/http"
+
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/product/dto"
 	"modular-monolithic/security/middleware"
@@ -46,7 +48,7 @@ func (r productPostgre) Select() (resp []model.Product, merr merror.Error) {
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -59,7 +61,7 @@ func (r productPostgre) Select() (resp []model.Product, merr merror.Error) {
 		if err := rows.StructScan(&product); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -81,7 +83,7 @@ func (r productPostgre) SelectByID(id string) (resp *model.Product, merr merror.
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -93,7 +95,7 @@ func (r productPostgre) SelectByID(id string) (resp *model.Product, merr merror.
 		if err := row.StructScan(&product); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -110,7 +112,7 @@ func (r productPostgre) Insert(data dto.CreateProductRequest) (merr merror.Error
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}
@@ -127,7 +129,7 @@ func (r productPostgre) Update(data dto.UpdateProductRequest, id string) (merr m
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}
@@ -144,7 +146,7 @@ func (r productPostgre) Destroy(id string) (merr merror.Error) {
 	if row == nil {
 		zap.S().Error(row.Err())
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: row.Err(),
 		}
 	}

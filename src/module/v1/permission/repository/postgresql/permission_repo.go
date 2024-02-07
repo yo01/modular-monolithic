@@ -1,6 +1,8 @@
 package postgresql
 
 import (
+	"net/http"
+
 	"modular-monolithic/model"
 	"modular-monolithic/module/v1/permission/dto"
 	"modular-monolithic/security/middleware"
@@ -48,7 +50,7 @@ func (r permissionPostgre) Select() (resp []model.Permission, merr merror.Error)
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -61,7 +63,7 @@ func (r permissionPostgre) Select() (resp []model.Permission, merr merror.Error)
 		if err := rows.StructScan(&permission); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -71,7 +73,7 @@ func (r permissionPostgre) Select() (resp []model.Permission, merr merror.Error)
 	if err := rows.Err(); err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -84,7 +86,7 @@ func (r permissionPostgre) SelectByID(id string) (resp *model.Permission, merr m
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -96,7 +98,7 @@ func (r permissionPostgre) SelectByID(id string) (resp *model.Permission, merr m
 		if err := row.StructScan(&role); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
@@ -112,7 +114,7 @@ func (r permissionPostgre) Insert(data dto.CreatePermissionRequest) (merr merror
 	if _, err := r.Carrier.Library.Sqlx.Queryx(INSERT_PERMISSION, id, data.RoleID, pq.StringArray(data.ListAPI)); err != nil {
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -129,7 +131,7 @@ func (r permissionPostgre) Update(data dto.UpdatePermissionRequest, id string) (
 	if err != nil {
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -146,7 +148,7 @@ func (r permissionPostgre) Destroy(id string) (merr merror.Error) {
 	if err == nil {
 		zap.S().Error(err)
 		return merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -159,7 +161,7 @@ func (r permissionPostgre) SelectByRoleID(roleID string) (resp *model.Permission
 	if err != nil {
 		zap.S().Error(err)
 		return nil, merror.Error{
-			Code:  500,
+			Code:  http.StatusInternalServerError,
 			Error: err,
 		}
 	}
@@ -171,7 +173,7 @@ func (r permissionPostgre) SelectByRoleID(roleID string) (resp *model.Permission
 		if err := row.StructScan(&role); err != nil {
 			zap.S().Error(err)
 			return nil, merror.Error{
-				Code:  500,
+				Code:  http.StatusInternalServerError,
 				Error: err,
 			}
 		}
