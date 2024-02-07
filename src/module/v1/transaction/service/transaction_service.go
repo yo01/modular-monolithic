@@ -72,6 +72,18 @@ func (s *TransactionService) Detail(id string) (resp *dto.TransactionResponse, m
 }
 
 func (s *TransactionService) Save(req dto.CreateTransactionRequest) (merr merror.Error) {
+	fetch, _ := s.CartRepository.CartPostgre.SelectByID(req.CartID)
+	if len(fetch) > 0 {
+		if fetch[0].IsSuccess {
+			err := fmt.Errorf("cart with id %v is already success", req.CartID)
+			zap.S().Error(err)
+			return merror.Error{
+				Code:  http.StatusForbidden,
+				Error: err,
+			}
+		}
+	}
+
 	if err := s.TransactionRepository.TransactionPostgre.Insert(req); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
