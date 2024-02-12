@@ -34,12 +34,12 @@ type Config struct {
 
 	// ADDITIONAL
 	SMTPServer     string
-	SMTPPort       int
 	SMTPUsername   string
 	SMTPPassword   string
 	SenderEmail    string
 	RecipientEmail string
 	SubjectEmail   string
+	SMTPPort       int
 }
 
 func load() Config {

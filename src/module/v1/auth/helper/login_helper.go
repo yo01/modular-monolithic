@@ -4,6 +4,7 @@ import (
 	"modular-monolithic/model"
 
 	"go.uber.org/zap"
+
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -21,9 +21,9 @@ func InitRoutes(c HandlerConfig) {
 	transactionRoutesWithMiddleware.HandleFunc("", TransactionHandler.List).Methods(http.MethodGet).Name("transaction.list")
 	transactionRoutesWithMiddleware.HandleFunc("/{id}", TransactionHandler.Detail).Methods(http.MethodGet).Name("transaction.detail")
 	transactionRoutesWithMiddleware.HandleFunc("", TransactionHandler.Create).Methods(http.MethodPost).Name("transaction.save")
-	transactionRoutesWithMiddleware.HandleFunc("/{id}", TransactionHandler.Edit).Methods(http.MethodPut).Name("transaction.edit")
+	// transactionRoutesWithMiddleware.HandleFunc("/{id}", TransactionHandler.Edit).Methods(http.MethodPut).Name("transaction.edit")
 	transactionRoutesWithMiddleware.HandleFunc("/{id}", TransactionHandler.Delete).Methods(http.MethodDelete).Name("transaction.delete")
-	transactionRoutesWithMiddleware.HandleFunc("/{id}/payment", TransactionHandler.Payment).Methods(http.MethodPut).Name("transaction.payment")
+	// transactionRoutesWithMiddleware.HandleFunc("/{id}/payment", TransactionHandler.Payment).Methods(http.MethodPut).Name("transaction.payment")
 
 	// TRANSACTION ROUTES WITHOUT MIDDLEWARE
 }

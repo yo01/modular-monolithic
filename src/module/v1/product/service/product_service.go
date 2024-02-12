@@ -83,7 +83,7 @@ func (s *ProductService) Save(req dto.CreateProductRequest, subRouterName string
 	}
 
 	// VALIDATION ACCESS
-	if err := middleware.ValidateAccess(s.Carrier, "", "", permission.ListAPI); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, "", subRouterName, permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}
@@ -108,7 +108,7 @@ func (s *ProductService) Edit(req dto.UpdateProductRequest, id, subRouterName st
 	}
 
 	// VALIDATION ACCESS
-	if err := middleware.ValidateAccess(s.Carrier, "", "", permission.ListAPI); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, "", subRouterName, permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}
@@ -143,7 +143,7 @@ func (s *ProductService) Delete(id, subRouterName string) (merr merror.Error) {
 	}
 
 	// VALIDATION ACCESS
-	if err := middleware.ValidateAccess(s.Carrier, "", "", permission.ListAPI); err.Error != nil {
+	if err := middleware.ValidateAccess(s.Carrier, "", subRouterName, permission.ListAPI); err.Error != nil {
 		zap.S().Error(err.Error)
 		return err
 	}

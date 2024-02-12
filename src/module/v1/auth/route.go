@@ -15,6 +15,7 @@ func InitRoutes(c HandlerConfig) {
 	}
 
 	// AUTH ROUTES WITH MIDDLEWARE
+	// authRoutesWithMiddleware := c.R.PathPrefix("/auth").Subrouter()
 
 	// AUTH ROUTE WITHOUT MIDDLEWARE
 	authRoutesWithoutMiddleware := c.R.PathPrefix("/auth").Subrouter()

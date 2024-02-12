@@ -44,7 +44,7 @@ func GeneralValidationAccess(carrier *mcarrier.Carrier, subRouterName string, co
 				Error: err,
 			}
 		} else if auth.User.Role.Name != "admin" {
-			err := errors.New("access denied, you don't have an access to this api")
+			err := errors.New("access denied, only admin can access this api")
 			zap.S().Error(err)
 			res = merror.Error{
 				Code:  http.StatusForbidden,
